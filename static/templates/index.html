@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- 網頁顯示設定-->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<script src="{{ url_for('static', filename='js/網2.0.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<header><!-- logo-->
+    <button class="menu">&#9776;</button>
+    <section class="sec1">
+        <img id="raccoon1" img class="clickable" src="{{ url_for('static', filename='image/浣熊3.png') }}" alt="浣熊1" />
+    </section>
+    <h1>這裡是logo</h1>
+    <nav><!-- 導覽列-->
+
+        <ul><!--無數字列表 -->
+
+            <li><a class="nav-link" href="#17goals">介紹</a></li><!--跳至第三區 -->
+            <li><a class="nav-link" href="#quoteBlock" style="margin-top: 80px;">冷知識</a></li>
+            <li><a class="nav-link" href="#small_game">小遊戲</a></li>
+
+        </ul>
+    </nav>
+
+
+</header>
+
+
+
+<main><!-- 主要內容-->
+    <!-- AI 聊天視窗 (預設隱藏) -->
+    <div id="chat-window" class="chat-hidden">
+        <!-- 標題列 -->
+        <div class="chat-header">
+            <span>浣熊 AI 助手</span>
+            <span id="close-chat" class="chat-close-btn">✖</span>
+        </div>
+
+        <!-- 訊息顯示區 -->
+        <div id="chat-messages" class="chat-messages">
+            <!-- 對話內容會出現在這裡 -->
+        </div>
+
+        <!-- 輸入區 -->
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="問我什麼吧...">
+            <button id="chat-submit" class="chat-submit-btn">送出</button>
+        </div>
+    </div>
+
+
+
+    <section class="news"><!-- 第一區-->
+
+        <p><a style="color: antiquewhite;" href="https://www.youtube.com/watch?v=FxfEzHiIgQU">點我</a></p>
+        <!-- 連結--><!-- 需要動畫效果的文字 -->
+
+    </section>
+
+    <section class="squares" id="17goals">
+        <div class="grid-container">
+
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-01.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-02.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-03.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-04.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-05.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-06.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-07.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-08.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-09.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-10.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-11.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-12.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-13.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-14.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-15.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-16.png') }}" alt="介紹圖片1">
+            </a>
+            <a href="{{ url_for('to_do') }}" class="square">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-17.png') }}" alt="介紹圖片1">
+            </a>
+
+        </div>
+    </section>
+
+    <section class="portf"> <!-- 第三區-->
+        <div>
+            <blockquote id="quoteBlock"><!-- 引用-->
+                <p class="quoteText">冷知識</p>
+            </blockquote>
+        </div>
+    </section>
+
+
+
+
+
+    <section class="product" id="small_game"><!-- 第四區-->
+
+        <div>
+            <h2>
+                小遊戲
+            </h2>
+            <img id="productImage" src="" alt="圖片1">
+
+            <br>
+            <p id="productName">下樓梯</p>
+        </div>
+        <button id=left_button onclick="left_btn_click(this)">
+            < </button>
+                <button id=right_button onclick="right_btn_click(this)"> > </button>
+                <button id="detail_button"
+                    onclick="window.location.href='https://www.youtube.com/watch?v=FxfEzHiIgQU';">...</button><!-- 額外按鍵(功能待補)-->
+
+
+</main>
+
+<footer>
+    <p>0908107363</p>
+    <p>brianchen989@gmail.com </p>
+    <p>https://github.com/brianchen989</p>
+    <p>新北市土城區福安街98-9號</p>
+</footer><!-- 頁尾-->
+{% endblock %}

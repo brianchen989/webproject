@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+
+    {% if title %}
+    <title>{{title}}</title>
+    {% else %}
+    <title>no title</title>
+    {% endif %}
+
+    {% block head %}
+    <p>HEAD</p>
+    <link rel="stylesheet" href="網2.0.css"><!-- 引入css-->
+    {% endblock %}
+
+</head>
+
+<body>
+
+    {% block content %}
+    <p>content</p>
+    {% endblock %}
+
+</body>
+
+</html>

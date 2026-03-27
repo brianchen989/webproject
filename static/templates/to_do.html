@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- 網頁顯示設定-->
+<link rel="stylesheet" href="{{ url_for('static', filename='') }}">
+<script src="{{ url_for('static', filename='') }}"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+    .to_do {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 50px;
+    }
+    .to_do img {
+        width: 60%;
+        max-width: 600px;
+        height: auto;
+    }
+</style>
+<div class="to_do">
+    <img src="{{ url_for('static', filename='image/浣熊施工中.png') }}" alt="施工中">
+</div>
+{% endblock %}

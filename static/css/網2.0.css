@@ -1,0 +1,439 @@
+/*平滑滾動*/
+html {
+    scroll-behavior: smooth;
+}
+
+/*設定標題*/
+header {
+    background-color: rgb(49, 163, 192);
+    border: 5px rgb(0, 4, 127) dashed;
+    height: 100px;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+}
+
+/*設定logo*/
+header h1 {
+    color: rgb(254, 254, 254);
+    position: absolute;
+    left: 120px;
+    top: 0px;
+    line-height: 80px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 210px;
+    text-indent: -999999px;
+}
+
+/*互動前導覽*/
+.nav-link {
+    display: inline;
+    margin-right: 4vw;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    font-size: 18px;
+}
+
+
+
+/*導覽定位*/
+header ul {
+    position: absolute;
+    right: 5vw;
+    top: 10px;
+    line-height: 80px;
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+header ul li {
+    display: inline-block;
+    /* 確保每個列表項目是行內塊元素 */
+}
+
+/*互動後導覽*/
+.nav-link:hover {
+    color: rgb(111, 111, 111);
+    text-decoration: underline;
+}
+
+/*LOGO 互動*/
+#raccoon1 {
+    cursor: pointer;
+
+}
+
+#raccoon1:hover {
+    transform: scale(1.1);
+    transition: transform 0.15s ease;
+}
+
+/* AI 聊天視窗整體設定 */
+#chat-window {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    /* 會跟下方 class 搭配隱藏或顯示 */
+    flex-direction: column;
+}
+
+/* 控制顯示或隱藏的 class */
+.chat-hidden {
+    display: none !important;
+    /* !important 強制覆蓋其他 CSS 規則 */
+}
+
+/* 標題列樣式 */
+.chat-header {
+    background: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 關閉按鈕樣式 */
+.chat-close-btn {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.chat-close-btn:hover {
+    color: #ff6b6b;
+}
+
+/* 訊息顯示區樣式 */
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+}
+
+/* 輸入區樣式 */
+.chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    background: white;
+    border-radius: 0 0 10px 10px;
+}
+
+/* 聊天輸入框樣式 */
+.chat-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+/* 聊天送出按鈕樣式 */
+.chat-submit-btn {
+    margin-left: 8px;
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* 聊天訊息樣式 */
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+/* 使用者訊息樣式 */
+.chat-message.user {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+    /* 靠右對齊 */
+}
+
+/* AI 訊息樣式 */
+.chat-message.ai {
+    background-color: #e5e5ea;
+    align-self: flex-start;
+    /* 靠左對齊 */
+}
+
+.chat-submit-btn:hover {
+    background-color: #45a049;
+}
+
+.squares {
+    scroll-margin-top: 200px;
+}
+
+/* 外層網格容器 */
+.grid-container {
+    display: grid;
+    /* 假設你想要一排呈現 5 個格子 (1fr 代表平分可用寬度) */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    /* 格子與格子之間的間距 */
+    padding: 20px;
+    margin-top: 80px;
+    /* 將此區塊往下推 */
+}
+
+/* 每個正方形格子 */
+.square {
+    width: 100%;
+    /* 寬度填滿自己被分配到的網格 */
+    aspect-ratio: 1 / 1;
+    /* 關鍵：強制高度與寬度一模一樣，變成正方形！ */
+    background-color: lightblue;
+    /* 先給個背景色方便看形狀 */
+    border-radius: 8px;
+    /* 讓正方形帶有點圓角，看個人喜好 */
+
+    /* 讓裡面的文字或內容置中 (可選) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 加上游標樣式與過渡效果 */
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 滑鼠移上去的特效，讓人知道能點擊 */
+.square:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+/* 確保圖片填滿整個正方形 */
+.square img {
+    width: 100%;
+    /* 寬度撐滿格子 */
+    height: 100%;
+    /* 高度撐滿格子 */
+    object-fit: cover;
+    /* 這個屬性超重要！它會自動裁切圖片讓圖片不變形填滿空間 */
+    border-radius: 8px;
+    /* 配合你格子原本的圓角 */
+}
+
+/* （選配）這個能隱藏圖片多餘的部分，如果未來要做互動動畫很有用 */
+.square {
+    overflow: hidden;
+}
+
+#quoteBlock {
+    margin-top: 5%;
+    margin-bottom: 5%;
+    scroll-margin-top: 250px;
+}
+
+/*第四區大架構*/
+
+.product {
+    background-color: rgb(199, 205, 226);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 100px, 180ox, 80px;
+    scroll-margin-top: 150px;
+
+}
+
+.product div {
+    width: 400px;
+    text-align: center;
+}
+
+.product h2 {
+    font-size: 60px;
+    color: #00008B;
+
+}
+
+.product img {
+    width: 700px;
+    height: 500px;
+    border-radius: 10px;
+    margin-top: 25px;
+    /* Move images down a bit */
+    margin-left: 400px;
+    /* Move images right a bit */
+}
+
+.product p {
+    color: #000;
+    width: 300px;
+    height: 50px;
+    font-size: 50px;
+    line-height: 1.6em;
+    margin-left: 600px;
+    writing-mode: horizontal-tb;
+}
+
+#left_button {
+    color: rgb(0, 0, 0);
+    font-size: 100px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(91, 103, 112);
+    border-radius: 50px;
+    cursor: pointer;
+    margin-left: -300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#right_button {
+    color: rgb(0, 0, 0);
+    font-size: 100px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(91, 103, 112);
+    border-radius: 50px;
+    cursor: pointer;
+    margin-left: 750px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#detail_button {
+    color: rgb(0, 0, 0);
+    font-size: 50px;
+    background-color: rgb(189, 177, 177);
+    border: 1px solid rgb(91, 103, 112);
+    border-radius: 10px;
+    cursor: pointer;
+    margin-left: 50px;
+    /* 修正單位 */
+    margin-top: 405px;
+    display: flex;
+    flex-direction: column;
+
+
+}
+
+/*表單*/
+.newsletter {
+    background-color: rgb(50, 48, 48);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+.newsletter p {
+    color: aliceblue;
+    font-size: 20px;
+}
+
+/* 讓所有表單的標籤顯示在輸入框上方 */
+form label {
+    display: block;
+    /* 每個標籤佔一行 */
+    color: white;
+    /* 設置文字顏色為白色 */
+    font-weight: bold;
+    /* 可選：讓文字加粗 */
+    margin-bottom: 5px;
+    /* 增加標籤與輸入框之間的間距 */
+}
+
+/* 縮小前三個輸入框的大小 */
+form input[type="text"],
+form input[type="email"],
+form input[type="tel"],
+form input[type="message"] {
+    width: 50%;
+    /* 將寬度縮小到 50% */
+    padding: 5px;
+    /* 調整內邊距 */
+    font-size: 14px;
+    /* 調整字體大小 */
+    display: block;
+    /* 每個元素佔一行 */
+    margin-bottom: 10px;
+    /* 增加下方間距 */
+}
+
+
+/* 更改 label 的文字顏色為白色 */
+form label {
+    color: white;
+    /* 設置文字顏色為白色 */
+    font-weight: bold;
+    /* 可選：讓文字加粗 */
+}
+
+.newsletter input {
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+
+/*輸入設定*/
+input ::placeholder {
+    color: #6b6a6a;
+}
+
+.newsletter button {
+    color: aliceblue;
+    font-size: 20px;
+    background-color: rgb(45, 37, 46);
+    border: 1px solid rgb(99, 130, 154);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/*表單案件*/
+
+/*頁尾*/
+footer {
+    background-color: black;
+    color: aliceblue;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+
+}
+
+.menu {
+    display: none;
+}
+
+/*展開頁面平時不出現*/
+#raccoon5 {
+    display: block;
+    width: 200px;
+    /* 基準寬度 */
+    height: auto;
+    /* 保持比例 */
+    transform: translateX(200px) scale(0.01);
+    /* 視覺上上移並放大 */
+    transform-origin: center center;
+    transition: transform 0.15s ease;
+}
+
+/*響應式語法*/
