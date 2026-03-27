@@ -24,11 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const quotes = [
-        { text: "在這個世界上，有兩種力量，一是劍，二是筆。<br>最後，劍會被筆所征服。", author: "佐藤長治" },
-        { text: "成功不是終點，失敗也不是終結，最重要的是勇於前行。", author: "丘吉爾" },
-        { text: "相信自己，你就能創造奇蹟。", author: "匿名" },
-        { text: "行動是治療恐懼的良藥。", author: "匿名" },
-        { text: "不怕慢，只怕站。", author: "中國諺語" }
+        { text: "SDGs 的 17 個目標都有專屬顏色，但你知道嗎？這些顏色是經過精密設計的，目的是為了讓色盲人士也能輕鬆區分。此外，這些顏色組合在一起形成一個圓環（The SDG Wheel），象徵地球的完整與和諧。", author: "它是全世界最色彩繽紛的「密碼」" },
+        { text: "大家都知道有 17 個目標（Goals），但其實底下還藏了 169 個細項目標（Targets）。", author: "它藏著 169 個「小任務」" },
+        { text: "為了推廣這些目標，聯合國甚至找過知名音樂人製作歌曲，甚至連 《芝麻街》 的餅乾怪獸（Cookie Monster）和艾蒙（Elmo）都幫 SDGs 拍過宣傳片。這告訴我們：再嚴肅的議題，用「社群功能」和「視覺化」來推廣也是很重要的", author: "它用「可愛」攻佔人心" }
     ];
     // 隨機選一則語錄
     const random = quotes[Math.floor(Math.random() * quotes.length)];
