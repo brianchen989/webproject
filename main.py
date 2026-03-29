@@ -13,11 +13,11 @@ app = Flask(__name__,template_folder='static/templates',static_folder='static')
 # 這裡請換成你申請到的 Google API 金鑰 (Gemini)
 # 注意：程式碼要上傳到公開的 GitHub 等地方時，千萬要記得把它遮蔽或刪掉！
 
-genai.configure(api_key="AIzaSyBGiGLX9fL6N-knztY17oSLYB-Z4BopWwc")
+genai.configure(api_key="AIzaSyCvqzR5bhdyqNOy87CVh3NNmK6sut3fxRU")
 
 # 初始化 Gemini 模型
 # gemini-1.5-flash 是目前 Google 官方推薦既快速又聰明的模型版本
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 告訴 Flask 資料庫路徑與檔名（sqlite:/// 代表存在專屬的檔案裡）
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'

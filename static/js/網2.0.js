@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!text) return;
 
         // 加上使用者的話
-        const userDiv = document.createElement("div");
-        userDiv.className = "chat-message user";
+        const userDiv = document.createElement("div");// 建立一個div元素
+        userDiv.className = "chat-message user";// 
         userDiv.innerText = text;
         chatMessages.appendChild(userDiv);
         chatInput.value = "";
@@ -46,25 +46,25 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text })
         })
-        .then(res => res.json())
-        .then(data => {
-            const aiDiv = document.createElement("div");
-            aiDiv.className = "chat-message ai";
-            aiDiv.innerText = data.reply || data.error;
-            chatMessages.appendChild(aiDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        })
-        .catch(err => {
-            const errDiv = document.createElement("div");
-            errDiv.className = "chat-message ai";
-            errDiv.innerText = "網路連線失敗，請稍後再試！";
-            chatMessages.appendChild(errDiv);
-        });
+            .then(res => res.json())
+            .then(data => {
+                const aiDiv = document.createElement("div");
+                aiDiv.className = "chat-message ai";
+                aiDiv.innerText = data.reply || data.error;
+                chatMessages.appendChild(aiDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(err => {
+                const errDiv = document.createElement("div");
+                errDiv.className = "chat-message ai";
+                errDiv.innerText = "網路連線失敗，請稍後再試！";
+                chatMessages.appendChild(errDiv);
+            });
     }
 
     if (chatSubmit) chatSubmit.addEventListener('click', sendMessage);
     if (chatInput) {
-        chatInput.addEventListener('keypress', function(e) {
+        chatInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
     }
