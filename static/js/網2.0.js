@@ -23,6 +23,52 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // 4. 對話功能
+    const chatSubmit = document.getElementById('chat-submit');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // 加上使用者的話
+        const userDiv = document.createElement("div");
+        userDiv.className = "chat-message user";
+        userDiv.innerText = text;
+        chatMessages.appendChild(userDiv);
+        chatInput.value = "";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // 呼叫後端 API
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const aiDiv = document.createElement("div");
+            aiDiv.className = "chat-message ai";
+            aiDiv.innerText = data.reply || data.error;
+            chatMessages.appendChild(aiDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch(err => {
+            const errDiv = document.createElement("div");
+            errDiv.className = "chat-message ai";
+            errDiv.innerText = "網路連線失敗，請稍後再試！";
+            chatMessages.appendChild(errDiv);
+        });
+    }
+
+    if (chatSubmit) chatSubmit.addEventListener('click', sendMessage);
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
     const quotes = [
         { text: "SDGs 的 17 個目標都有專屬顏色，但你知道嗎？這些顏色是經過精密設計的，目的是為了讓色盲人士也能輕鬆區分。此外，這些顏色組合在一起形成一個圓環（The SDG Wheel），象徵地球的完整與和諧。", author: "它是全世界最色彩繽紛的「密碼」" },
         { text: "大家都知道有 17 個目標（Goals），但其實底下還藏了 169 個細項目標（Targets）。", author: "它藏著 169 個「小任務」" },

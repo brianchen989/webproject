@@ -1,7 +1,6 @@
 from flask import Flask,render_template, request, jsonify
 
-from flask import request, jsonify
-from openai import OpenAI#匯入openai套件
+import google.generativeai as genai
 
 import uuid # 用來產生隨機 ID
 
@@ -14,17 +13,17 @@ app = Flask(__name__,template_folder='static/templates',static_folder='static')
 # 這裡請換成你申請到的 Google API 金鑰 (Gemini)
 # 注意：程式碼要上傳到公開的 GitHub 等地方時，千萬要記得把它遮蔽或刪掉！
 
-#genai.configure(api_key="[ENCRYPTION_KEY]")
+genai.configure(api_key="AIzaSyBGiGLX9fL6N-knztY17oSLYB-Z4BopWwc")
 
 # 初始化 Gemini 模型
 # gemini-1.5-flash 是目前 Google 官方推薦既快速又聰明的模型版本
-#model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 告訴 Flask 資料庫路徑與檔名（sqlite:/// 代表存在專屬的檔案裡）
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'
 
 # 關閉 SQLAlchemy 內建的追蹤功能（可以省點效能）
-app.config['AIzaSyBGiGLX9fL6N-knztY17oSLYB-Z4BopWwc'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # 啟動資料庫服務
 models.db.init_app(app)
 
@@ -38,7 +37,6 @@ def to_do():
     title = "還沒做好的網頁"
     return render_template("to_do.html", title=title)
 
-'''
 @app.route("/api/chat", methods=["POST"])
 def chat():
     # 1. 取得前端傳過來的資料（JSON 格式）
@@ -63,7 +61,6 @@ def chat():
         # 如果發生錯誤（例如 API key 錯誤、網路斷線等）
         print("API 發生錯誤:", e)
         return jsonify({"error": "不好意思，我的腦袋稍微卡住了，請稍後再試！"}), 500
-'''
 # 啟動伺服器
 if __name__ == "__main__":
     # 建立資料庫
