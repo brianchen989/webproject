@@ -23,38 +23,51 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 4. 對話功能
-    const chatSubmit = document.getElementById('chat-submit');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
+    // ==========================================
+    // [AI 助手前端互動邏輯]
+    // 負責從網頁取得使用者輸入的訊息，並傳送給後端的 Flask 伺服器
+    // 交互檔案： 
+    // - 後端 Python: main.py (負責在 /api/chat 處理這裡送出的資料，並呼叫 Gemini API)
+    // - 介面 HTML: static/templates/index.html (包含 id="chat-submit", id="chat-input" 等畫面元素)
+    // ==========================================
+    const chatSubmit = document.getElementById('chat-submit');     // 綁定「送出」按鈕
+    const chatInput = document.getElementById('chat-input');       // 綁定「文字輸入框」
+    const chatMessages = document.getElementById('chat-messages'); // 綁定「對話顯示區」長方塊
 
     function sendMessage() {
         const text = chatInput.value.trim();
-        if (!text) return;
+        if (!text) return; // 防呆機制：如果發送空白文字就不往後執行
 
-        // 加上使用者的話
-        const userDiv = document.createElement("div");// 建立一個div元素
-        userDiv.className = "chat-message user";// 
-        userDiv.innerText = text;
-        chatMessages.appendChild(userDiv);
-        chatInput.value = "";
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // 1. 將使用者的文字包裝成一個氣泡元素，並顯示在畫面上
+        const userDiv = document.createElement("div"); // 建立一個div元素做為對話氣泡
+        userDiv.className = "chat-message user";       // 設定專屬樣式（在 CSS 中定義，靠右顯示）
+        userDiv.innerText = text;                      // 將使用者輸入的文字塞進去
+        chatMessages.appendChild(userDiv);             // 將這個氣泡加入到對話顯示區
+        
+        chatInput.value = ""; // 送出後清空輸入框
+        chatMessages.scrollTop = chatMessages.scrollHeight; // 把畫面捲軸滾到最下面，方便看最新訊息
 
-        // 呼叫後端 API
+        // 2. 呼叫後端 API：透過 POST 請求將文字 JSON 化，發給 main.py 的 /api/chat 路由
         fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ message: text }) // 打包成 JSON 格式發送，例如 {"message": "你好"}
         })
-            .then(res => res.json())
+            .then(res => res.json()) // 接收從後端 main.py 回傳的執行結果，並解開 JSON
             .then(data => {
+                // 3. 根據後端回傳回來的結果 (data.reply) 產生 AI 的對話氣泡
                 const aiDiv = document.createElement("div");
-                aiDiv.className = "chat-message ai";
-                aiDiv.innerText = data.reply || data.error;
+                aiDiv.className = "chat-message ai"; // 設定 AI 專屬樣式（靠左顯示，底色不同）
+                
+                // 如果後端有發生錯誤，會把 "data.error" 丟回來，這裡如果沒有 reply 就顯示 error
+                aiDiv.innerText = data.reply || data.error; 
                 chatMessages.appendChild(aiDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 再次將捲軸滾動到最底，確保使用者看到 AI 剛回覆的訊息
+                chatMessages.scrollTop = chatMessages.scrollHeight; 
             })
             .catch(err => {
+                // 4. 如果斷線、或其他原因導致完全連不到 Flask 伺服器，會在這裡顯示錯誤
                 const errDiv = document.createElement("div");
                 errDiv.className = "chat-message ai";
                 errDiv.innerText = "網路連線失敗，請稍後再試！";
@@ -62,7 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    // 當點擊「送出」按鈕時，觸發上面的 sendMessage 函式
     if (chatSubmit) chatSubmit.addEventListener('click', sendMessage);
+    
+    // 當專注在輸入框並且按下「Enter鍵」時，也一樣觸發 sendMessage 函式發出訊息
     if (chatInput) {
         chatInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
