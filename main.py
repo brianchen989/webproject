@@ -17,7 +17,7 @@ app = Flask(__name__,template_folder='static/templates',static_folder='static')
 # 透過 google.generativeai 呼叫 Google AI 服務
 # 這裡請換成你申請到的 Google API 金鑰 (Gemini)
 # 注意：程式碼要上傳到公開的 GitHub 等地方時，千萬要記得把它遮蔽或刪掉！
-genai.configure(api_key="AIzaSyCvqzR5bhdyqNOy87CVh3NNmK6sut3fxRU")
+genai.configure(api_key="[ENCRYPTION_KEY]")
 
 # 初始化 Gemini 模型
 # 這裡指定使用 gemini-2.5-flash，負責處理前端 (網2.0.js) 傳來的聊天文字
