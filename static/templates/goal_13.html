@@ -4,31 +4,93 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
 <style>
+    /* 新版專屬 Header 樣式 */
+    .goal-header {
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        padding: 15px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .goal-header-logo {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #2c3e50;
+        text-decoration: none;
+        letter-spacing: 1px;
+    }
+    .goal-header-logo span {
+        color: #4a7c59;
+    }
+    .goal-nav {
+        display: flex;
+        gap: 30px;
+    }
+    .goal-nav a {
+        text-decoration: none;
+        color: #555;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: color 0.3s;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+    .goal-nav a:hover {
+        color: #4a7c59;
+        background-color: rgba(74, 124, 89, 0.1);
+    }
+
+    /* 新版專屬 Footer 樣式 */
+    .goal-footer {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 50px 20px;
+        text-align: center;
+        margin-top: 50px;
+    }
+    .goal-footer h4 {
+        margin: 0 0 15px 0;
+        font-size: 1.6rem;
+        letter-spacing: 1.5px;
+        color: #ffffff;
+    }
+    .goal-footer p {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #bdc3c7;
+    }
+
+    /* 版面配置樣式 */
     .goal-page {
         display: flex;
         flex-direction: column;
         gap: 30px;
-        padding: 40px;
+        padding: 20px 40px;
         max-width: 1200px;
         margin: 0 auto;
-        min-height: 80vh;
+        min-height: 70vh;
     }
     
-    /* 上方的 block：左右排版 */
     .block-top {
         display: flex;
         flex-wrap: wrap;
         gap: 40px;
         align-items: flex-start;
-        background: #fdfdfd;
-        padding: 30px;
+        background: #ffffff;
+        padding: 40px;
         border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
     
     .block-top-left {
         flex: 1;
-        min-width: 250px;
+        min-width: 280px;
         display: flex;
         justify-content: center;
     }
@@ -37,12 +99,17 @@
         max-width: 100%;
         height: auto;
         border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .block-top-left img:hover {
+        transform: translateY(-5px);
     }
     
     .block-top-right {
         flex: 2;
-        min-width: 300px;
+        min-width: 320px;
         display: flex;
         flex-direction: column;
         gap: 15px;
@@ -63,19 +130,22 @@
         margin: 0;
         font-size: 1.3rem;
         font-weight: 600;
+        background-color: rgba(230, 126, 34, 0.1);
+        padding: 10px 15px;
+        border-left: 5px solid #e67e22;
+        border-radius: 4px;
     }
     
     .block-top-right p {
         font-size: 1.15rem;
         color: #444;
         line-height: 1.8;
-        margin: 0;
+        margin: 10px 0 0 0;
         text-align: justify;
     }
     
-    /* 中間的 block：遊戲預留區 */
     .block-middle {
-        background: #eef5ff;
+        background: linear-gradient(135deg, #f0f7fa 0%, #eef5ff 100%);
         padding: 40px;
         border-radius: 12px;
         text-align: center;
@@ -85,21 +155,22 @@
         justify-content: center;
         align-items: center;
         border: 2px dashed #a0c4ff;
+        box-shadow: inset 0 0 10px rgba(160, 196, 255, 0.2);
     }
     
     .block-middle h2 {
-        color: #4a7c59;
+        color: #34495e;
         margin-bottom: 15px;
+        font-size: 1.8rem;
     }
     
-    /* 下方的 block：預留區 */
     .block-bottom {
-        background: #f5f5f5;
+        background: #fdfdfd;
         padding: 40px;
         border-radius: 12px;
         text-align: center;
         min-height: 200px;
-        border: 2px dashed #ccc;
+        border: 2px dashed #ddd;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -107,50 +178,72 @@
     
     .back-btn {
         display: inline-block;
-        margin-top: 30px;
-        padding: 12px 25px;
-        background-color: #333;
+        margin-top: 10px;
+        padding: 15px 35px;
+        background-color: #4a7c59;
         color: white;
         text-decoration: none;
-        border-radius: 6px;
-        transition: background-color 0.3s;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: all 0.3s;
         text-align: center;
         align-self: center;
         width: fit-content;
+        box-shadow: 0 4px 10px rgba(74, 124, 89, 0.3);
     }
     
     .back-btn:hover {
-        background-color: #555;
+        background-color: #3b6347;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(74, 124, 89, 0.4);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="goal-page">
-    
-    <!-- 上方 Block：圖片與介紹 -->
-    <div class="block-top">
-        <div class="block-top-left">
-            <img src="{{ url_for('static', filename='image/E-WEB-Goal-13.png') }}" alt="目標 13">
+<!-- 全新設計的專屬 Header -->
+<header class="goal-header">
+    <a href="{{ url_for('index') }}" class="goal-header-logo">SDGs <span>永續發展目標</span></a>
+    <nav class="goal-nav">
+        <a href="{{ url_for('index') }}">回到首頁</a>
+        <a href="{{ url_for('index') }}#17goals">探索所有目標</a>
+    </nav>
+</header>
+
+<main>
+    <div class="goal-page">
+        <!-- 上方 Block：圖片與介紹 -->
+        <div class="block-top">
+            <div class="block-top-left">
+                <img src="{{ url_for('static', filename='image/E-WEB-Goal-13.png') }}" alt="目標 13">
+            </div>
+            <div class="block-top-right">
+                <h1>目標 13：氣候行動</h1>
+                <h3>簡介：完備減緩調適行動，以因應氣候變遷及其影響。</h3>
+                <p>氣候變遷是全球面臨的最大威脅之一。此目標呼籲各國將氣候變遷對策納入國家政策，加強對氣候相關災害的抵禦能力，並推廣氣候教育與意識。</p>
+            </div>
         </div>
-        <div class="block-top-right">
-            <h1>目標 13：氣候行動</h1>
-            <h3>簡介：完備減緩調適行動，以因應氣候變遷及其影響。</h3>
-            <p>氣候變遷是全球面臨的最大威脅之一。此目標呼籲各國將氣候變遷對策納入國家政策，加強對氣候相關災害的抵禦能力，並推廣氣候教育與意識。</p>
+        
+        <!-- 中間 Block：遊戲區塊 -->
+        <div class="block-middle">
+            <h2>🎮 與此目標相關的小遊戲</h2>
+            <p style="color: #666; font-size: 1.1rem;">（此處為目標 13 相關小遊戲的預留空間）</p>
         </div>
+        
+        <!-- 下方 Block：預留區塊 -->
+        <div class="block-bottom">
+            <p style="color: #999; font-size: 1.1rem;">（下方區塊：未來可以新增更多與此目標相關的內容或資訊）</p>
+        </div>
+        
+        <a href="{{ url_for('index') }}" class="back-btn">返回首頁</a>
     </div>
-    
-    <!-- 中間 Block：遊戲區塊 -->
-    <div class="block-middle">
-        <h2>🎮 與此目標相關的小遊戲</h2>
-        <p>（此處為目標 13 相關小遊戲的預留空間）</p>
-    </div>
-    
-    <!-- 下方 Block：預留區塊 -->
-    <div class="block-bottom">
-        <p>（下方區塊：未來可以新增更多與此目標相關的內容或資訊）</p>
-    </div>
-    
-    <a href="{{ url_for('index') }}" class="back-btn">返回首頁</a>
-</div>
+</main>
+
+<!-- 全新設計的專屬 Footer -->
+<footer class="goal-footer">
+    <h4>共同致力於改變我們的世界</h4>
+    <p>2030年永續發展議程 (The 2030 Agenda for Sustainable Development)</p>
+</footer>
 {% endblock %}
