@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知識大挑戰 - 隨機問答遊戲</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.2rem;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Game Section */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            min-height: 4rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 1.2rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            color: #34d399;
+        }
+
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: #f87171;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .action-container {
+            margin-top: 2rem;
+            text-align: right;
+            min-height: 50px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 2.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+
+        #next-btn {
+            display: none;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            color: white;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Intro Section */
+        .intro-section {
+            margin-top: 1rem;
+        }
+
+        .intro-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-content {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .intro-content p {
+            margin-bottom: 1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        #game-screen {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Game Section -->
+    <div class="glass-card" id="start-screen">
+        <div style="text-align: center;">
+            <h1 class="result-title" style="margin-bottom: 1.5rem;">知識大挑戰</h1>
+            <p style="margin-bottom: 2.5rem; color: var(--text-muted); font-size: 1.2rem;">準備好測試你的跨領域知識了嗎？<br>每次將從 50 題題庫中隨機抽取 20 題！</p>
+            <button class="btn-primary" onclick="startGame()">立即開始遊戲</button>
+        </div>
+    </div>
+
+    <div class="glass-card" id="game-screen">
+        <div class="game-header">
+            <div class="progress" id="progress-text">題數：1 / 20</div>
+            <div class="score">得分：<span id="score-value">0</span></div>
+        </div>
+        <div class="question-text" id="question-text">載入中...</div>
+        <div class="options-grid" id="options-container">
+            <!-- Options dynamically inserted -->
+        </div>
+        <div class="action-container">
+            <button class="btn-primary" id="next-btn" onclick="nextQuestion()">下一題 ➔</button>
+        </div>
+    </div>
+
+    <div class="glass-card result-screen" id="result-screen">
+        <h2 class="result-title">遊戲結束！</h2>
+        <p style="color: var(--text-muted); font-size: 1.2rem; margin-top: 1rem;">你的最終得分是：</p>
+        <div class="final-score" id="final-score">0 / 20</div>
+        <button class="btn-primary" onclick="startGame()">再玩一次</button>
+    </div>
+
+    <!-- About Section -->
+    <div class="glass-card intro-section">
+        <h2 class="intro-title">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            關於此遊戲
+        </h2>
+        <div class="intro-content">
+            <p>歡迎來到「知識大挑戰」！這是一個為您測試與豐富跨領域知識所設計的互動式網頁遊戲。</p>
+            <p><strong>✨ 遊戲機制：</strong><br>
+            系統內建了包含永續發展、環境保護、科學常識、歷史地理等多個領域的 <strong>50 題專屬題庫</strong>。每次開始新遊戲時，系統會自動將題庫打亂，並<strong>隨機抽取其中的 20 題</strong>供玩家作答，確保您每一次的遊玩體驗都充滿新鮮感與挑戰性！</p>
+            <p><strong>🎮 操作方式：</strong><br>
+            閱讀上方卡片中的問題後，點擊您認為正確的選項。系統會立即給予回饋（綠色代表正確，紅色代表錯誤）。完成答題後點擊「下一題」繼續，直到 20 題全部作答完畢，即可查看您的最終得分。</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 50 Question Pool
+    const fullQuestionPool = [
+        { q: "聯合國永續發展目標 (SDGs) 總共有幾個核心目標？", options: ["15個", "17個", "19個", "21個"], a: 1 },
+        { q: "SDG 1 的目標是消除什麼？", options: ["飢餓", "貧窮", "疾病", "文盲"], a: 1 },
+        { q: "SDG 2 的目標與什麼有關？", options: ["性別平權", "氣候行動", "消除飢餓", "優質教育"], a: 2 },
+        { q: "下列何者為 SDG 4 的核心？", options: ["優質教育", "乾淨水資源", "永續城市", "陸地生態"], a: 0 },
+        { q: "SDG 5 致力於實現什麼？", options: ["消除貧窮", "性別平權", "減少不平等", "和平正義"], a: 1 },
+        { q: "哪一項是 SDG 13 的重點行動？", options: ["氣候行動", "海洋生態", "陸地生態", "工業創新"], a: 0 },
+        { q: "SDG 14 主要關注的是哪個領域？", options: ["太空探索", "陸地生態", "海洋生態", "高山生態"], a: 2 },
+        { q: "溫室效應主要由哪種氣體的過量排放引起？", options: ["氧氣", "氮氣", "二氧化碳", "氫氣"], a: 2 },
+        { q: "台灣的垃圾分類主要分為哪三大類？", options: ["一般垃圾、資源回收、廚餘", "紙類、塑膠、玻璃", "可燃、不可燃、有毒", "金屬、塑膠、紙類"], a: 0 },
+        { q: "世界地球日是每年的哪一天？", options: ["3月22日", "4月22日", "5月22日", "6月22日"], a: 1 },
+        { q: "下列哪一種能源屬於再生能源？", options: ["煤炭", "天然氣", "太陽能", "石油"], a: 2 },
+        { q: "造成海洋塑膠污染的主要來源是？", options: ["沉船", "一次性塑膠製品", "海嘯", "火山爆發"], a: 1 },
+        { q: "全球暖化會導致海平面如何變化？", options: ["下降", "不變", "上升", "不一定"], a: 2 },
+        { q: "太陽系中最大的行星是哪一顆？", options: ["地球", "火星", "木星", "土星"], a: 2 },
+        { q: "人類呼吸時，吸入的主要對生命有益的氣體是？", options: ["二氧化碳", "氧氣", "氮氣", "一氧化碳"], a: 1 },
+        { q: "水的化學式是？", options: ["CO2", "O2", "H2O", "H2O2"], a: 2 },
+        { q: "哪一種動物是哺乳類但會飛？", options: ["老鷹", "蝙蝠", "企鵝", "鴕鳥"], a: 1 },
+        { q: "地球上最大的洋是？", options: ["大西洋", "印度洋", "太平洋", "北冰洋"], a: 2 },
+        { q: "奧林匹克運動會每幾年舉辦一次夏季賽事？", options: ["2年", "3年", "4年", "5年"], a: 2 },
+        { q: "「蒙娜麗莎的微笑」是哪位藝術家的作品？", options: ["梵谷", "畢卡索", "達文西", "米開朗基羅"], a: 2 },
+        { q: "世界上最高的山峰是？", options: ["玉山", "富士山", "聖母峰", "吉力馬札羅山"], a: 2 },
+        { q: "一般來說，成人的正常牙齒數量(含智齒)大約是？", options: ["28-32顆", "20-24顆", "36-40顆", "24-28顆"], a: 0 },
+        { q: "電腦的中央處理器簡稱是什麼？", options: ["GPU", "RAM", "CPU", "HDD"], a: 2 },
+        { q: "台灣最高的建築物是？", options: ["高雄85大樓", "台北101", "南山廣場", "新光摩天大樓"], a: 1 },
+        { q: "哪一種昆蟲會釀蜜？", options: ["蝴蝶", "蜻蜓", "蜜蜂", "蒼蠅"], a: 2 },
+        { q: "一年有幾個節氣？", options: ["12個", "24個", "36個", "48個"], a: 1 },
+        { q: "下列哪個國家不屬於亞洲？", options: ["日本", "泰國", "埃及", "韓國"], a: 2 },
+        { q: "圓周率 (π) 的近似值通常取？", options: ["3.12", "3.14", "3.16", "3.18"], a: 1 },
+        { q: "光在真空中的傳播速度大約是每秒多少公里？", options: ["3萬", "30萬", "300萬", "3000萬"], a: 1 },
+        { q: "人體最大的器官是？", options: ["心臟", "大腦", "肝臟", "皮膚"], a: 3 },
+        { q: "哈利波特在霍格華茲被分到哪一個學院？", options: ["史萊哲林", "赫夫帕夫", "雷文克勞", "葛來分多"], a: 3 },
+        { q: "「蘋果」公司的創辦人之一是？", options: ["比爾·蓋茲", "馬克·祖克柏", "史蒂夫·賈伯斯", "伊隆·馬斯克"], a: 2 },
+        { q: "台灣主要的氣候類型不包含下列何者？", options: ["熱帶季風氣候", "副熱帶季風氣候", "溫帶大陸性氣候", "以上皆非"], a: 2 },
+        { q: "一般來說，冰融化成水是因為溫度高於幾度？", options: ["-5°C", "0°C", "5°C", "10°C"], a: 1 },
+        { q: "音樂中的「Do Re Mi」屬於哪種記譜法？", options: ["簡譜", "五線譜", "唱名", "音名"], a: 2 },
+        { q: "下列哪一種維生素主要可以透過曬太陽在人體內合成？", options: ["維生素A", "維生素B", "維生素C", "維生素D"], a: 3 },
+        { q: "成語「守株待兔」比喻什麼？", options: ["勤勞不懈", "妄想不勞而獲", "隨機應變", "勇敢果斷"], a: 1 },
+        { q: "下列哪一種動物被稱為「萬獸之王」？", options: ["老虎", "獅子", "大象", "黑熊"], a: 1 },
+        { q: "在太陽系中，地球是距離太陽第幾近的行星？", options: ["第二", "第三", "第四", "第五"], a: 1 },
+        { q: "我們日常使用的電，交流電的頻率在台灣大約是？", options: ["50Hz", "60Hz", "100Hz", "120Hz"], a: 1 },
+        { q: "下列哪一個不是四大發明之一？", options: ["造紙術", "火藥", "指南針", "地動儀"], a: 3 },
+        { q: "「床前明月光」是哪位詩人的作品？", options: ["杜甫", "李白", "白居易", "蘇軾"], a: 1 },
+        { q: "英文字母共有幾個？", options: ["24個", "25個", "26個", "27個"], a: 2 },
+        { q: "人體血液呈現紅色主要是因為含有什麼？", options: ["血漿", "白血球", "血小板", "血紅素"], a: 3 },
+        { q: "下列哪個平台主要用於短影音分享？", options: ["LinkedIn", "TikTok", "GitHub", "StackOverflow"], a: 1 },
+        { q: "台灣的「護國神山」通常是指哪一家企業？", options: ["鴻海", "聯發科", "台積電", "台塑"], a: 2 },
+        { q: "相對論是哪位物理學家提出的？", options: ["牛頓", "愛因斯坦", "霍金", "伽利略"], a: 1 },
+        { q: "哪一種氣體在空氣中佔比最大？", options: ["氧氣", "二氧化碳", "氮氣", "氬氣"], a: 2 },
+        { q: "在童話故事中，是誰留下了玻璃鞋？", options: ["白雪公主", "睡美人", "灰姑娘", "小紅帽"], a: 2 },
+        { q: "被稱為「不祥之兆」，但在西方部分文化視為不幸的數字是？", options: ["4", "13", "8", "9"], a: 1 }
+    ];
+
+    const GAME_QUESTION_COUNT = 20;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        
+        // 隨機抽取 20 題
+        let shuffledPool = shuffleArray([...fullQuestionPool]);
+        currentQuestions = shuffledPool.slice(0, GAME_QUESTION_COUNT);
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        updateScore();
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        let qData = currentQuestions[currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `題數：${currentQuestionIndex + 1} / ${GAME_QUESTION_COUNT}`;
+        
+        const qElement = document.getElementById('question-text');
+        qElement.innerText = qData.q;
+        
+        // Restart animation
+        qElement.style.animation = 'none';
+        qElement.offsetHeight; 
+        qElement.style.animation = null;
+        qElement.classList.add('fade-in');
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        qData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn fade-in';
+            btn.style.animationDelay = `${index * 0.1}s`;
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex, btnElement) {
+        if (answered) return;
+        answered = true;
+        
+        const qData = currentQuestions[currentQuestionIndex];
+        const correctIndex = qData.a;
+        const buttons = document.querySelectorAll('.option-btn');
+        
+        buttons.forEach((btn, index) => {
+            btn.disabled = true;
+            if (index === correctIndex) {
+                btn.classList.add('correct');
+            } else if (index === selectedIndex) {
+                btn.classList.add('wrong');
+            }
+        });
+
+        if (selectedIndex === correctIndex) {
+            score++;
+            updateScore();
+        }
+
+        document.getElementById('next-btn').style.display = 'inline-block';
+        
+        if (currentQuestionIndex === GAME_QUESTION_COUNT - 1) {
+            document.getElementById('next-btn').innerText = '查看結果 ➔';
+        } else {
+            document.getElementById('next-btn').innerText = '下一題 ➔';
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < GAME_QUESTION_COUNT - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function updateScore() {
+        document.getElementById('score-value').innerText = score;
+    }
+
+    function showResult() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / ${GAME_QUESTION_COUNT}`;
+    }
+</script>
+
+</body>
+</html>

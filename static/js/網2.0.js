@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // 作品輯切換功能
 let currentImageIndex = 0;
 const images = [
-    { src: "static/image/浣熊施工中.png", name: 'pygame', alt: "pygame", url: '' },
+    { src: "static/image/quiz.png", name: '基本測驗', alt: "基本測驗", url: 'quiz.html' },
     { src: "static/image/浣熊施工中.png", name: '太空旅行', alt: "太空旅行", url: '' },
     { src: "static/image/浣熊施工中.png", name: '練PYTHON', alt: "練PYTHON", url: '' }
 ];

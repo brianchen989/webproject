@@ -42,6 +42,11 @@ def to_do():
     title = "還沒做好的網頁"
     return render_template("to_do.html", title=title)
 
+@app.route('/quiz.html')
+def quiz():
+    title = "知識大挑戰"
+    return render_template("quiz.html", title=title)
+
 @app.route('/goal_<int:goal_id>')
 def goal(goal_id):
     title = f"SDGs 目標 {goal_id}"
