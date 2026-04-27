@@ -107,8 +107,6 @@ const images = [
     { src: "static/image/浣熊施工中.png", name: '太空旅行', alt: "太空旅行", url: '' },
     { src: "static/image/浣熊施工中.png", name: '練PYTHON', alt: "練PYTHON", url: '' }
 ];
-images.style.width = "100px";
-images.style.height = "100px";
 
 // 更新顯示並綁定點擊連結
 function updateProductDisplay() {
@@ -142,7 +140,6 @@ function right_btn_click() {
 document.addEventListener("DOMContentLoaded", function () {
     // ...existing DOMContentLoaded code...
     updateProductDisplay();
-    updateAchievementDisplay();
 });
 
 function detail_btn_click() {

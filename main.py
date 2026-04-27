@@ -42,6 +42,11 @@ def to_do():
     title = "還沒做好的網頁"
     return render_template("to_do.html", title=title)
 
+@app.route('/goal_<int:goal_id>')
+def goal(goal_id):
+    title = f"SDGs 目標 {goal_id}"
+    return render_template(f"goal_{goal_id}.html", title=title)
+
 # ==========================================
 # [AI 助手後端對話路由]
 # 負責接收前端的訊息，並將回應用 JSON 傳回前端
