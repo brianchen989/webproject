@@ -1,20 +1,18 @@
-# models.py
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-# 宣告一個還沒有跟 app 綁定的資料庫物件
+# 宣告未綁定的資料庫物件
 db = SQLAlchemy()
-# 將 main.py 裡面的 Event 類別剪下並貼到這裡
+
 class Event(db.Model):
     id = db.Column(db.String(36), primary_key=True)
 
     def to_dict(self):
         return {
             "id": self.id,
-
         }
 
-# 新增：排行榜分數模型
+# 排行榜分數模型
 class PlayerScore(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
@@ -28,12 +26,12 @@ class PlayerScore(db.Model):
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M")
         }
 
-# 新增：小遊戲與關聯的 ESG 目標模型
+# 小遊戲與 ESG 目標關聯模型
 class MiniGame(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    game_name = db.Column(db.String(100), nullable=False) # 小遊戲名稱 (例如：quiz)
-    file_path = db.Column(db.String(255), nullable=True)  # 對應的網頁檔案 (例如：quiz.html)
-    description = db.Column(db.Text, nullable=True)       # 小遊戲的簡單描述
+    game_name = db.Column(db.String(100), nullable=False) # 遊戲名稱 (例如：quiz)
+    file_path = db.Column(db.String(255), nullable=True)  # 網頁檔案路徑 (例如：quiz.html)
+    description = db.Column(db.Text, nullable=True)       # 遊戲簡介
     
     # 17 個屬性對應 17 個 SDGs 目標 (True 代表該遊戲有涵蓋該目標)
     goal_1 = db.Column(db.Boolean, default=False)

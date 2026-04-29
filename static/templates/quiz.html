@@ -280,6 +280,24 @@
         </h2>
         <div class="intro-content">
             <p>歡迎來到「ESG 知識大挑戰」！這是一個為您測試與豐富 ESG 及永續發展知識所設計的互動式網頁遊戲。</p>
+            
+            <!-- 動態顯示資料庫傳來的屬性標籤 -->
+            {% if active_goals %}
+            <div style="margin: 15px 0;">
+                <strong>🏷️ 遊戲涵蓋屬性：</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                    {% for goal_id in active_goals %}
+                    <a href="/goal_{{ goal_id }}" 
+                       style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.9rem; border: 1px solid #34d399; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" 
+                       onmouseover="this.style.background='#34d399'; this.style.color='#111827'; this.style.transform='translateY(-2px)';" 
+                       onmouseout="this.style.background='rgba(52, 211, 153, 0.15)'; this.style.color='#34d399'; this.style.transform='translateY(0)';">
+                       SDG 目標 {{ goal_id }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <p><strong>✨ 遊戲機制：</strong><br>
             系統內建了包含環境保護 (E)、社會責任 (S)、公司治理 (G)、氣候變遷與淨零排放等多個領域的 <strong>50 題專屬題庫</strong>。每次開始新遊戲時，系統會自動將題庫打亂，並<strong>隨機抽取其中的 20 題</strong>供玩家作答，確保您每一次的遊玩體驗都充滿新鮮感與挑戰性！</p>
             <p><strong>🎮 操作方式：</strong><br>
@@ -293,6 +311,11 @@
         <div id="leaderboard-content" style="margin-top: 1rem; text-align: left; color: white;">
             載入中...
         </div>
+    </div>
+
+    <!-- 返回首頁按鈕 -->
+    <div style="margin-top: 30px; text-align: center;">
+        <button class="btn-primary" onclick="window.location.href='/'" style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); padding: 12px 30px;">🏠 返回首頁</button>
     </div>
 </div>
 
