@@ -47,7 +47,17 @@ def quiz():
 
 @app.route('/goal_<int:goal_id>')
 def goal(goal_id):
-    return render_template(f"goal_{goal_id}.html", title=f"SDGs 目標 {goal_id}")
+    # 尋找有涵蓋此目標的小遊戲
+    games = []
+    try:
+        all_games = models.MiniGame.query.all()
+        for g in all_games:
+            if getattr(g, f'goal_{goal_id}', False):
+                games.append(g)
+    except Exception as e:
+        print(f"資料庫查詢遊戲失敗: {e}")
+        
+    return render_template(f"goal_{goal_id}.html", title=f"SDGs 目標 {goal_id}", games=games)
 
 # ==========================================
 # AI 助手對話 API
