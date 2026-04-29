@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
+import os
 import uuid
 import models
 import utils.tool as tool
@@ -11,13 +12,20 @@ app = Flask(__name__, template_folder='static/templates', static_folder='static'
 # AI 助手功能設定 (Google Gemini)
 # ==========================================
 # 填入 Google API 金鑰 (請注意不要外洩至公開平台)
-genai.configure(api_key="[ENCRYPTION_KEY]")
+api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
+else:
+    print("警告：未設定 GEMINI_API_KEY 環境變數")
 
 # 初始化 Gemini 模型 (負責處理聊天對話)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 設定 Supabase 雲端資料庫 (PostgreSQL) 連線字串
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.vcqtfeqthtdwwxzgmdfj:fZH_stpyw886NMq@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres'
+db_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 綁定資料庫服務
