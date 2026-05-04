@@ -437,3 +437,87 @@ footer {
 }
 
 /*響應式語法*/
+@media screen and (max-width: 1200px) {
+    .product img {
+        width: 500px;
+        height: auto;
+        margin-left: 200px;
+    }
+    .product p {
+        margin-left: 300px;
+    }
+    #left_button { margin-left: -150px; }
+    #right_button { margin-left: 300px; }
+}
+
+@media screen and (max-width: 900px) {
+    header h1 { left: 20px; }
+    header ul {
+        display: none; /* 小螢幕先隱藏導覽列，或後續搭配 JS 展開 */
+    }
+    .menu {
+        display: block;
+        position: absolute;
+        right: 20px;
+        top: 25px;
+        font-size: 30px;
+        color: white;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .product {
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .product div {
+        width: 100%;
+    }
+    .product img {
+        width: 90%;
+        max-width: 500px;
+        height: auto;
+        margin: 20px auto;
+        display: block;
+    }
+    .product p {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 30px;
+    }
+    /* 將按鈕改為並排顯示在圖片下方 */
+    .product {
+        position: relative;
+    }
+    #left_button, #right_button, #detail_button {
+        position: static;
+        margin: 10px;
+        display: inline-block;
+        font-size: 40px;
+        padding: 10px 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    header h1 {
+        font-size: 24px;
+        width: 150px;
+    }
+    .product h2 {
+        font-size: 40px;
+    }
+    .newsletter input[type="text"],
+    .newsletter input[type="email"],
+    .newsletter input[type="tel"],
+    .newsletter input[type="message"] {
+        width: 90%;
+    }
+}
