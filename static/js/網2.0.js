@@ -85,6 +85,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // 選單切換功能
+    const menuBtn = document.querySelector('.menu');
+    const navUl = document.querySelector('header ul');
+    if (menuBtn && navUl) {
+        menuBtn.addEventListener('click', function () {
+            navUl.classList.toggle('show');
+        });
+    }
+
     const quotes = [
         { text: "SDGs 的 17 個目標都有專屬顏色，但你知道嗎？這些顏色是經過精密設計的，目的是為了讓色盲人士也能輕鬆區分。此外，這些顏色組合在一起形成一個圓環（The SDG Wheel），象徵地球的完整與和諧。", author: "它是全世界最色彩繽紛的「密碼」" },
         { text: "大家都知道有 17 個目標（Goals），但其實底下還藏了 169 個細項目標（Targets）。", author: "它藏著 169 個「小任務」" },

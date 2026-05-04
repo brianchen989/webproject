@@ -453,7 +453,29 @@ footer {
 @media screen and (max-width: 900px) {
     header h1 { left: 20px; }
     header ul {
-        display: none; /* 小螢幕先隱藏導覽列，或後續搭配 JS 展開 */
+        display: none; /* 小螢幕先隱藏導覽列 */
+        flex-direction: column;
+        background-color: rgb(49, 163, 192);
+        position: absolute;
+        top: 100px;
+        right: 0;
+        width: 150px;
+        padding: 10px 0;
+        border-radius: 0 0 0 10px;
+        box-shadow: -2px 5px 10px rgba(0,0,0,0.2);
+    }
+    header ul.show {
+        display: flex;
+    }
+    header ul li {
+        display: block;
+        text-align: center;
+        line-height: 50px;
+    }
+    .nav-link {
+        margin-right: 0;
+        display: block;
+        width: 100%;
     }
     .menu {
         display: block;
@@ -485,21 +507,38 @@ footer {
         display: block;
     }
     .product p {
-        width: 100%;
+        width: 60%;
         margin: 0 auto;
         text-align: center;
         font-size: 30px;
     }
-    /* 將按鈕改為並排顯示在圖片下方 */
+    /* 遊戲區塊按鈕響應式排版 */
     .product {
         position: relative;
+        padding-bottom: 120px; /* 保留空間給底部按鈕 */
     }
-    #left_button, #right_button, #detail_button {
-        position: static;
-        margin: 10px;
-        display: inline-block;
-        font-size: 40px;
-        padding: 10px 20px;
+    #left_button, #right_button {
+        position: absolute;
+        bottom: 110px; /* 對齊文字位置 */
+        margin: 0;
+        font-size: 30px;
+        padding: 5px 20px;
+        top: auto;
+    }
+    #left_button {
+        left: 5%;
+    }
+    #right_button {
+        right: 5%;
+    }
+    #detail_button {
+        position: absolute;
+        bottom: 50px; /* 放至文字右下方 */
+        right: 20%;
+        margin: 0;
+        font-size: 20px; /* 縮小按鈕 */
+        padding: 5px 15px;
+        top: auto;
     }
 }
 
