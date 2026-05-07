@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
 let currentImageIndex = 0;
 const images = [
     { src: "static/image/quiz.png", name: '基本測驗', alt: "基本測驗", url: 'quiz.html' },
-    { src: "static/image/浣熊施工中.png", name: '太空旅行', alt: "太空旅行", url: '' },
+    { src: "static/images/clicking_earth/earth3.png", name: 'Clicking Earth', alt: "Clicking Earth", url: 'clicking_earth.html' },
     { src: "static/image/浣熊施工中.png", name: '練PYTHON', alt: "練PYTHON", url: '' }
 ];
 

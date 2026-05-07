@@ -53,6 +53,18 @@ def quiz():
                 
     return render_template("quiz.html", title="知識大挑戰", active_goals=active_goals)
 
+@app.route('/clicking_earth.html')
+def clicking_earth():
+    game_record = models.MiniGame.query.filter_by(game_name="clicking_earth").first()
+    active_goals = []
+    
+    if game_record:
+        for i in range(1, 18):
+            if getattr(game_record, f"goal_{i}", False):
+                active_goals.append(i)
+                
+    return render_template("clicking_earth.html", title="Clicking Earth", active_goals=active_goals)
+
 @app.route('/goal_<int:goal_id>')
 def goal(goal_id):
     # 尋找有涵蓋此目標的小遊戲
@@ -143,6 +155,18 @@ def init_mini_games():
         models.db.session.add(new_quiz)
         models.db.session.commit()
         print("✅ 已將 quiz.html 註冊至小遊戲資料庫！")
+
+    clicking_earth_game = models.MiniGame.query.filter_by(game_name="clicking_earth").first()
+    if not clicking_earth_game:
+        new_ce = models.MiniGame(
+            game_name="clicking_earth",
+            file_path="clicking_earth.html",
+            description="透過點擊與升級來改善地球環境的永續發展放置遊戲",
+            goal_7=True, goal_11=True, goal_12=True, goal_13=True, goal_14=True, goal_15=True
+        )
+        models.db.session.add(new_ce)
+        models.db.session.commit()
+        print("✅ 已將 clicking_earth.html 註冊至小遊戲資料庫！")
 
 # 啟動伺服器
 if __name__ == "__main__":

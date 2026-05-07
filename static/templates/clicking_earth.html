@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicking Earth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Quiz variables and layout */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans TC', sans-serif; }
+        body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; line-height: 1.6; }
+        .main-container { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 2rem; }
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1.2rem; padding: 2.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+
+        /* Clicking Earth specific styles */
+        #game-container {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            height: 500px;
+            width: 100%;
+            border-radius: 1.2rem;
+            overflow: hidden;
+        }
+
+        #progress-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            background: linear-gradient(to bottom, #4a4a4a, #2b2b2b);
+            transition: background 1s ease;
+        }
+
+        .left-panel, .right-panel {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .left-panel {
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .right-panel {
+            width: 320px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            overflow-y: auto;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .info-section {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .info-section h1 { font-size: 2rem; color: #81C784; text-shadow: 2px 2px 5px #000; margin-bottom: 10px; }
+        .info-section h2 { font-size: 1.2rem; color: #4FC3F7; margin-top: 10px; }
+
+        .interaction-section { display: flex; justify-content: center; align-items: center; }
+        #earth-btn {
+            background: none; border: none; cursor: pointer; transition: transform 0.1s, box-shadow 0.3s;
+            border-radius: 50%; width: 250px; height: 250px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            display: flex; justify-content: center; align-items: center; overflow: hidden; outline: none;
+        }
+        #earth-btn:active { transform: scale(0.95); }
+        #earth-btn:hover { box-shadow: 0 0 40px rgba(255, 255, 255, 0.4); }
+        #earth-img { width: 100%; height: 100%; object-fit: contain; transform: scale(2.1); border-radius: 50%; transition: filter 0.3s; }
+        #earth-btn:hover #earth-img { filter: brightness(1.1); }
+
+        .store-section h2 { text-align: center; margin-top: 0; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid rgba(255, 255, 255, 0.3); font-size: 1.5rem; letter-spacing: 2px; }
+        .upgrade-card { display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 10px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .upgrade-card:hover { background-color: rgba(255, 255, 255, 0.25); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+        .upgrade-card.disabled { opacity: 0.5; cursor: not-allowed; background-color: rgba(0, 0, 0, 0.3); }
+        .upgrade-card.disabled:hover { transform: none; box-shadow: none; }
+        .upgrade-icon { width: 45px; height: 45px; margin-right: 10px; border-radius: 6px; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .upgrade-info { flex-grow: 1; }
+        .upgrade-name { font-weight: bold; font-size: 1rem; margin-bottom: 3px; }
+        .upgrade-cost { color: #ffb74d; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; }
+        .upgrade-ips { font-size: 0.75rem; color: #b0bec5; margin: 0; }
+        .upgrade-count { font-size: 1.4rem; font-weight: bold; color: #4FC3F7; margin-left: 10px; min-width: 30px; text-align: center; }
+
+        .floating-text { position: fixed; color: #fff; font-size: 24px; font-weight: bold; pointer-events: none; animation: floatUp 1s ease-out forwards; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.5); } }
+
+        /* Skills */
+        .skills-section { display: flex; gap: 10px; margin-bottom: 15px; height: 50px; }
+        .skill-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3); background-color: rgba(0, 0, 0, 0.5); cursor: pointer; position: relative; overflow: hidden; transition: transform 0.2s; display: flex; justify-content: center; align-items: center; }
+        .skill-btn.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        .skill-btn.active { box-shadow: 0 0 15px #ffb74d; border-color: #ffb74d; animation: pulse 1s infinite alternate; }
+        .skill-btn.locked { display: none; }
+        .skill-icon { width: 30px; height: 30px; object-fit: contain; z-index: 2; }
+        .skill-cooldown-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1; height: 0%; transition: height 0.1s linear; }
+        .skill-timer-text { position: absolute; z-index: 3; font-size: 12px; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; }
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+        .sea-saver-ship { position: absolute; cursor: pointer; z-index: 50; width: 80px; height: 80px; animation: sailAcross 15s linear forwards, bob 2s ease-in-out infinite; }
+        .sea-saver-ship:hover { transform: scale(1.1); filter: brightness(1.2); }
+        @keyframes sailAcross { 0% { left: -100px; top: 40%; } 100% { left: 110%; top: 50%; } }
+        @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -10px; } }
+
+        /* General UI Elements */
+        .result-title { font-size: 2rem; margin-bottom: 1rem; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 0.8rem 2.5rem; border-radius: 0.5rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4); }
+
+        /* Intro Section */
+        .intro-title { font-size: 1.8rem; margin-bottom: 1.2rem; color: #60a5fa; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-content { color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; }
+        .intro-content p { margin-bottom: 1rem; }
+
+        @media (max-width: 768px) {
+            #game-container { flex-direction: column; height: auto; }
+            .right-panel { width: 100%; height: 300px; border-left: none; border-top: 2px solid rgba(255, 255, 255, 0.2); }
+            .left-panel { padding: 20px 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    
+    <!-- Game Section -->
+    <div class="glass-card" style="padding: 0;">
+        <div id="game-container">
+            <div id="progress-background"></div>
+            
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="info-section">
+                    <h1 style="margin-top: 0;">永續點數: <span id="score">0</span></h1>
+                    <h2>每秒產量 (IPS): <span id="ips">0</span></h2>
+                </div>
+                
+                <div id="skills-section" class="skills-section">
+                    <!-- 技能按鈕動態生成 -->
+                </div>
+
+                <div class="interaction-section">
+                    <button id="earth-btn">
+                        <!-- 將封面設為 earth3.png -->
+                        <img src="{{ url_for('static', filename='images/clicking_earth/earth3.png') }}" alt="Earth" id="earth-img">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="store-section">
+                    <h2>永續商店</h2>
+                    <div id="upgrades-container">
+                        <!-- 升級項目 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Score Section -->
+    <div class="glass-card" style="text-align: center;">
+        <h2 class="result-title">結算與排行榜</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">你的目前分數：<span id="display-final-score" style="font-weight: bold; color: #fbbf24; font-size: 1.5rem;">0</span></p>
+        <div id="submit-score-section">
+            <input type="text" id="player-name" placeholder="輸入暱稱記錄分數" style="padding: 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.3); font-size: 1rem; margin-right: 10px; background: rgba(0,0,0,0.3); color: white;">
+            <button class="btn-primary" onclick="submitScore()">送出成績</button>
+            <p id="submit-msg" style="margin-top: 10px; color: #34d399;"></p>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="glass-card">
+        <h2 class="intro-title">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            關於此遊戲
+        </h2>
+        <div class="intro-content">
+            <p>歡迎來到「Clicking Earth」！這是一個讓您透過點擊與升級來改善地球環境的永續發展放置遊戲。</p>
+            
+            {% if active_goals %}
+            <div style="margin: 15px 0;">
+                <strong>🏷️ 遊戲涵蓋屬性：</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                    {% for goal_id in active_goals %}
+                    <a href="/goal_{{ goal_id }}" 
+                       style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.9rem; border: 1px solid #34d399; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" 
+                       onmouseover="this.style.background='#34d399'; this.style.color='#111827'; this.style.transform='translateY(-2px)';" 
+                       onmouseout="this.style.background='rgba(52, 211, 153, 0.15)'; this.style.color='#34d399'; this.style.transform='translateY(0)';">
+                       SDG 目標 {{ goal_id }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <p><strong>✨ 遊戲機制：</strong><br>
+            點擊地球可以獲得「永續點數」，並利用點數購買商店中的各項永續設施（如環保志工、社區菜園、離岸風機等），以提升每次點擊的獲得量或自動產生的點數（IPS）。隨著點數累積，背景的污染會逐漸減少，地球也會變得更加蔚藍！</p>
+            <p><strong>🎮 操作方式：</strong><br>
+            不斷點擊中央的地球累積點數。解鎖「離岸風機」和「研究中心」後，可以使用主動技能獲得短時間的巨大加成。偶爾還會有「海洋清理船」經過，點擊它以獲得隨機的豐厚獎勵！</p>
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="glass-card" id="leaderboard-section">
+        <h2 class="result-title">🏆 遊戲排行榜</h2>
+        <div id="leaderboard-content" style="margin-top: 1rem; text-align: left; color: white;">
+            載入中...
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 10px;">
+        <button class="btn-primary" onclick="window.location.href='/'" style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5);">🏠 返回首頁</button>
+    </div>
+</div>
+
+<script>
+    // Game Logic
+    let score = 0;
+    let totalScore = 0;
+
+    let activeSkills = {
+        windTurbine: { active: false, timer: 0, cooldown: 0, maxDuration: 0, maxCooldown: 0 },
+        researchCenter: { active: false, timer: 0, cooldown: 0, maxDuration: 15, maxCooldown: 90 }
+    };
+
+    const upgrades = {
+        volunteer: { name: '環保志工', baseCost: 15, costMult: 1.15, count: 0, image: "{{ url_for('static', filename='images/clicking_earth/volunteer.png') }}", desc: '+1 點/點擊' },
+        garden: { name: '社區菜園', baseCost: 100, costMult: 1.15, count: 0, image: "{{ url_for('static', filename='images/clicking_earth/garden.png') }}", desc: '+5 IPS' },
+        wind_turbine: { name: '離岸風機', baseCost: 1000, costMult: 1.25, count: 0, image: "{{ url_for('static', filename='images/clicking_earth/wind turbine.png') }}", desc: '解鎖主動：點擊x2' },
+        sea_saver: { name: '海洋清理船', baseCost: 5000, costMult: 1.30, count: 0, image: "{{ url_for('static', filename='images/clicking_earth/sea saver.png') }}", desc: '解鎖：隨機大獎' },
+        research_center: { name: '研究中心', baseCost: 20000, costMult: 1.40, count: 0, image: "{{ url_for('static', filename='images/clicking_earth/research center.png') }}", desc: '解鎖主動：IPS加倍' }
+    };
+
+    const upgradeKeys = Object.keys(upgrades);
+
+    const scoreEl = document.getElementById('score');
+    const ipsEl = document.getElementById('ips');
+    const earthBtn = document.getElementById('earth-btn');
+    const earthImg = document.getElementById('earth-img');
+    const upgradesContainer = document.getElementById('upgrades-container');
+    const progressBackground = document.getElementById('progress-background');
+    const skillsSection = document.getElementById('skills-section');
+    const displayFinalScore = document.getElementById('display-final-score');
+
+    function getClickingPower() {
+        let power = 1 + upgrades.volunteer.count;
+        if (upgrades.volunteer.count >= 25) power *= 1.1;
+        if (activeSkills.windTurbine.active) power *= 2;
+        return Math.max(1, Math.floor(power));
+    }
+
+    function getIPS() {
+        let currentIps = upgrades.garden.count * 5;
+        if (upgrades.garden.count >= 50) currentIps *= 2;
+        if (activeSkills.researchCenter.active) {
+            let multiplier = (upgrades.research_center.count >= 10) ? 3 : 2;
+            currentIps *= multiplier;
+        }
+        return currentIps;
+    }
+
+    function initStore() {
+        upgradesContainer.innerHTML = '';
+        upgradeKeys.forEach((key) => {
+            const upgrade = upgrades[key];
+            const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMult, upgrade.count));
+            const card = document.createElement('div');
+            card.className = `upgrade-card ${score >= cost ? '' : 'disabled'}`;
+            card.id = `upgrade-${key}`;
+            card.onclick = () => buyUpgrade(key);
+
+            card.innerHTML = `
+                <img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-icon">
+                <div class="upgrade-info">
+                    <p class="upgrade-name">${upgrade.name}</p>
+                    <p class="upgrade-cost" id="cost-${key}">💰 ${cost}</p>
+                    <p class="upgrade-ips">${upgrade.desc}</p>
+                </div>
+                <div class="upgrade-count" id="count-${key}">${upgrade.count}</div>
+            `;
+            upgradesContainer.appendChild(card);
+        });
+    }
+
+    function initSkills() {
+        skillsSection.innerHTML = `
+            <div id="skill-wind" class="skill-btn locked" onclick="activateWindTurbine()">
+                <img src="{{ url_for('static', filename='images/clicking_earth/wind turbine.png') }}" class="skill-icon">
+                <div id="skill-wind-cd" class="skill-cooldown-overlay"></div>
+                <div id="skill-wind-text" class="skill-timer-text"></div>
+            </div>
+            <div id="skill-research" class="skill-btn locked" onclick="activateResearchCenter()">
+                <img src="{{ url_for('static', filename='images/clicking_earth/research center.png') }}" class="skill-icon">
+                <div id="skill-research-cd" class="skill-cooldown-overlay"></div>
+                <div id="skill-research-text" class="skill-timer-text"></div>
+            </div>
+        `;
+    }
+
+    function updateDisplay() {
+        scoreEl.innerText = Math.floor(score);
+        ipsEl.innerText = getIPS().toFixed(1);
+        displayFinalScore.innerText = Math.floor(score);
+
+        upgradeKeys.forEach((key) => {
+            const upgrade = upgrades[key];
+            const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMult, upgrade.count));
+            const card = document.getElementById(`upgrade-${key}`);
+            const costEl = document.getElementById(`cost-${key}`);
+            const countEl = document.getElementById(`count-${key}`);
+
+            if (card && costEl && countEl) {
+                costEl.innerText = `💰 ${cost}`;
+                countEl.innerText = upgrade.count;
+                if (score >= cost) card.classList.remove('disabled');
+                else card.classList.add('disabled');
+            }
+        });
+
+        updateSkillsDisplay();
+        updateBackground();
+    }
+
+    function updateSkillsDisplay() {
+        const windBtn = document.getElementById('skill-wind');
+        const windCd = document.getElementById('skill-wind-cd');
+        const windText = document.getElementById('skill-wind-text');
+        if (upgrades.wind_turbine.count > 0 && windBtn) {
+            windBtn.classList.remove('locked');
+            if (activeSkills.windTurbine.active) {
+                windBtn.classList.add('active'); windBtn.classList.remove('disabled');
+                windCd.style.height = '0%'; windText.innerText = Math.ceil(activeSkills.windTurbine.timer) + 's';
+            } else if (activeSkills.windTurbine.cooldown > 0) {
+                windBtn.classList.remove('active'); windBtn.classList.add('disabled');
+                windCd.style.height = (activeSkills.windTurbine.cooldown / activeSkills.windTurbine.maxCooldown * 100) + '%';
+                windText.innerText = Math.ceil(activeSkills.windTurbine.cooldown);
+            } else {
+                windBtn.classList.remove('active', 'disabled');
+                windCd.style.height = '0%'; windText.innerText = '就緒';
+            }
+        }
+
+        const resBtn = document.getElementById('skill-research');
+        const resCd = document.getElementById('skill-research-cd');
+        const resText = document.getElementById('skill-research-text');
+        if (upgrades.research_center.count > 0 && resBtn) {
+            resBtn.classList.remove('locked');
+            if (activeSkills.researchCenter.active) {
+                resBtn.classList.add('active'); resBtn.classList.remove('disabled');
+                resCd.style.height = '0%'; resText.innerText = Math.ceil(activeSkills.researchCenter.timer) + 's';
+            } else if (activeSkills.researchCenter.cooldown > 0) {
+                resBtn.classList.remove('active'); resBtn.classList.add('disabled');
+                resCd.style.height = (activeSkills.researchCenter.cooldown / activeSkills.researchCenter.maxCooldown * 100) + '%';
+                resText.innerText = Math.ceil(activeSkills.researchCenter.cooldown);
+            } else {
+                resBtn.classList.remove('active', 'disabled');
+                resCd.style.height = '0%'; resText.innerText = '就緒';
+            }
+        }
+    }
+
+    function buyUpgrade(key) {
+        const upgrade = upgrades[key];
+        const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMult, upgrade.count));
+        if (score >= cost) {
+            score -= cost;
+            upgrade.count++;
+            const card = document.getElementById(`upgrade-${key}`);
+            if (card) {
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => card.style.transform = '', 150);
+            }
+            updateDisplay();
+        }
+    }
+
+    function activateWindTurbine() {
+        if (upgrades.wind_turbine.count > 0 && !activeSkills.windTurbine.active && activeSkills.windTurbine.cooldown <= 0) {
+            activeSkills.windTurbine.active = true;
+            let level = upgrades.wind_turbine.count;
+            let duration = 20 + (level - 1) * 1.1;
+            let cd = 60 - (level - 1) * 1.66;
+            activeSkills.windTurbine.maxDuration = duration;
+            activeSkills.windTurbine.timer = duration;
+            activeSkills.windTurbine.maxCooldown = Math.max(10, cd);
+            updateSkillsDisplay();
+        }
+    }
+
+    function activateResearchCenter() {
+        if (upgrades.research_center.count > 0 && !activeSkills.researchCenter.active && activeSkills.researchCenter.cooldown <= 0) {
+            activeSkills.researchCenter.active = true;
+            activeSkills.researchCenter.maxDuration = 15;
+            activeSkills.researchCenter.timer = 15;
+            activeSkills.researchCenter.maxCooldown = 90;
+            updateSkillsDisplay();
+        }
+    }
+
+    function trySpawnSeaSaver() {
+        if (upgrades.sea_saver.count > 0) {
+            const chance = (0.01 + (upgrades.sea_saver.count * 0.005)) / 10;
+            if (Math.random() < chance && !document.querySelector('.sea-saver-ship')) spawnSeaSaver();
+        }
+    }
+
+    function spawnSeaSaver() {
+        const ship = document.createElement('img');
+        ship.src = "{{ url_for('static', filename='images/clicking_earth/sea saver no background.png') }}";
+        ship.className = 'sea-saver-ship';
+        const gameContainer = document.getElementById('game-container');
+        ship.style.top = (20 + Math.random() * 60) + '%';
+
+        ship.onclick = (e) => {
+            let reward = Math.floor(Math.max(100, getIPS() * 180));
+            score += reward; totalScore += reward;
+            showFloatingText(e, `+${reward} 💰大豐收!`, '#ffb74d');
+            ship.remove();
+            updateDisplay();
+        };
+
+        gameContainer.appendChild(ship);
+        setTimeout(() => { if (ship.parentElement) ship.remove(); }, 15000);
+    }
+
+    earthBtn.addEventListener('click', (e) => {
+        let power = getClickingPower();
+        score += power; totalScore += power;
+        updateDisplay();
+        showFloatingText(e, `+${power}`, '#fff');
+    });
+
+    setInterval(() => {
+        const currentIps = getIPS();
+        if (currentIps > 0) {
+            score += currentIps / 10;
+            totalScore += currentIps / 10;
+        }
+
+        if (activeSkills.windTurbine.active) {
+            activeSkills.windTurbine.timer -= 0.1;
+            if (activeSkills.windTurbine.timer <= 0) {
+                activeSkills.windTurbine.active = false;
+                activeSkills.windTurbine.cooldown = activeSkills.windTurbine.maxCooldown;
+            }
+        } else if (activeSkills.windTurbine.cooldown > 0) {
+            activeSkills.windTurbine.cooldown -= 0.1;
+        }
+
+        if (activeSkills.researchCenter.active) {
+            activeSkills.researchCenter.timer -= 0.1;
+            if (activeSkills.researchCenter.timer <= 0) {
+                activeSkills.researchCenter.active = false;
+                activeSkills.researchCenter.cooldown = activeSkills.researchCenter.maxCooldown;
+            }
+        } else if (activeSkills.researchCenter.cooldown > 0) {
+            activeSkills.researchCenter.cooldown -= 0.1;
+        }
+
+        trySpawnSeaSaver();
+        updateDisplay();
+    }, 100);
+
+    function showFloatingText(e, msg, color) {
+        const text = document.createElement('div');
+        text.className = 'floating-text';
+        text.innerText = msg;
+        text.style.color = color || '#fff';
+        const offsetX = (Math.random() - 0.5) * 60;
+        const offsetY = (Math.random() - 0.5) * 60;
+        text.style.left = `${e.clientX + offsetX}px`;
+        text.style.top = `${e.clientY + offsetY}px`;
+        document.body.appendChild(text);
+        setTimeout(() => text.remove(), 1000);
+    }
+
+    function updateBackground() {
+        const maxScore = 50000;
+        let progress = Math.min(totalScore / maxScore, 1);
+        const skyR = Math.floor(74 + (135 - 74) * progress);
+        const skyG = Math.floor(74 + (206 - 74) * progress);
+        const skyB = Math.floor(74 + (235 - 74) * progress);
+        const groundR = Math.floor(43 + (129 - 43) * progress);
+        const groundG = Math.floor(43 + (199 - 43) * progress);
+        const groundB = Math.floor(43 + (132 - 43) * progress);
+        progressBackground.style.background = `linear-gradient(to bottom, rgb(${skyR}, ${skyG}, ${skyB}), rgb(${groundR}, ${groundG}, ${groundB}))`;
+
+        // The user specifically requested: 封面為clicking earth\images\earth3.png
+        // We removed dynamic earth changing so it stays on earth3.png
+    }
+
+    // Leaderboard logic
+    function submitScore() {
+        const name = document.getElementById('player-name').value.trim();
+        if (!name) { alert('請輸入暱稱！'); return; }
+        
+        fetch('/api/submit_score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, score: Math.floor(score) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('submit-msg').innerText = '✅ 成績儲存成功！';
+                loadLeaderboard();
+            } else {
+                alert('儲存失敗：' + (data.error || '未知錯誤'));
+            }
+        })
+        .catch(err => alert('連線發生錯誤'));
+    }
+
+    function loadLeaderboard() {
+        fetch('/api/leaderboard')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('leaderboard-content');
+            if (data.error) { container.innerHTML = '<p style="color:red;">讀取排行榜失敗</p>'; return; }
+            if (data.length === 0) { container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">目前還沒有人挑戰，搶先成為第一名吧！</p>'; return; }
+            
+            let html = '<ol style="padding-left: 20px;">';
+            data.forEach((item, index) => {
+                let crown = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+                html += `<li style="margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                    ${crown}<strong>${item.name}</strong> - 
+                    <span style="color: #34d399; font-weight: bold;">${item.score} 分</span> 
+                    <span style="font-size: 0.8rem; color: #888; margin-left: 10px;">(${item.created_at})</span>
+                </li>`;
+            });
+            html += '</ol>';
+            container.innerHTML = html;
+        })
+        .catch(err => { container.innerHTML = '<p style="color:red;">無法連接伺服器讀取排行榜</p>'; });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        initStore();
+        initSkills();
+        updateDisplay();
+        loadLeaderboard();
+    });
+</script>
+</body>
+</html>
