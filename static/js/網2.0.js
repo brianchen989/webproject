@@ -7,18 +7,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const chatWindow = document.getElementById('chat-window');
     const closeBtn = document.getElementById('close-chat');
 
+    // 系統優化：平滑置底滾動函式
+    function scrollToBottom() {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
     // 2. 如果成功抓到圖片，才幫它掛上「點擊事件」的監聽器
     if (image) {
         image.addEventListener('click', function () {
-            // toggle 的意思是：如果原本藏著就顯示，顯示著就藏起來
             chatWindow.classList.toggle('chat-hidden');
+            if (!chatWindow.classList.contains('chat-hidden')) {
+                // 開啟時自動捲動至最新對話，並將輸入框聚焦
+                scrollToBottom();
+                if (chatInput) chatInput.focus();
+            }
         });
     }
 
     // 3. 「✖」按鈕的功能
     if (closeBtn) {
         closeBtn.addEventListener('click', function () {
-            // 強制加上隱藏的 class
             chatWindow.classList.add('chat-hidden');
         });
     }
@@ -26,52 +36,92 @@ document.addEventListener("DOMContentLoaded", function () {
     // ==========================================
     // [AI 助手前端互動邏輯]
     // 負責從網頁取得使用者輸入的訊息，並傳送給後端的 Flask 伺服器
-    // 交互檔案： 
-    // - 後端 Python: main.py (負責在 /api/chat 處理這裡送出的資料，並呼叫 Gemini API)
-    // - 介面 HTML: static/templates/index.html (包含 id="chat-submit", id="chat-input" 等畫面元素)
     // ==========================================
     const chatSubmit = document.getElementById('chat-submit');     // 綁定「送出」按鈕
     const chatInput = document.getElementById('chat-input');       // 綁定「文字輸入框」
     const chatMessages = document.getElementById('chat-messages'); // 綁定「對話顯示區」長方塊
 
+    // 系統優化：聊天歷史 sessionStorage 持久化儲存
+    function saveMessageToHistory(role, text) {
+        try {
+            let history = JSON.parse(sessionStorage.getItem('chat_history')) || [];
+            history.push({ role: role, text: text });
+            // 最多保留最近 15 條對話紀錄，避免佔用過多瀏覽器記憶體
+            if (history.length > 15) history.shift();
+            sessionStorage.setItem('chat_history', JSON.stringify(history));
+        } catch (e) {
+            console.error("無法寫入 sessionStorage 歷史對話:", e);
+        }
+    }
+
+    // 系統優化：從 sessionStorage 載入歷史訊息
+    function loadChatHistory() {
+        if (!chatMessages) return;
+        try {
+            const history = JSON.parse(sessionStorage.getItem('chat_history'));
+            if (history && history.length > 0) {
+                chatMessages.innerHTML = ''; // 清空預設值
+                history.forEach(msg => {
+                    const msgDiv = document.createElement("div");
+                    msgDiv.className = `chat-message ${msg.role}`;
+                    msgDiv.innerText = msg.text;
+                    chatMessages.appendChild(msgDiv);
+                });
+            } else {
+                // 首次開啟或無歷史紀錄時，顯示小灰的專屬歡迎語氣泡
+                chatMessages.innerHTML = '';
+                const welcomeDiv = document.createElement("div");
+                welcomeDiv.className = "chat-message ai";
+                welcomeDiv.innerText = "🐾 浣熊小灰上線啦！有什麼關於 SDGs、ESG 或者是環保小遊戲的問題都可以問我喔！啾～🦝🐾";
+                chatMessages.appendChild(welcomeDiv);
+            }
+            scrollToBottom();
+        } catch (e) {
+            console.error("載入歷史對話失敗:", e);
+        }
+    }
+
+    // 載入執行
+    loadChatHistory();
+
     function sendMessage() {
         const text = chatInput.value.trim();
         if (!text) return; // 防呆機制：如果發送空白文字就不往後執行
 
-        // 1. 將使用者的文字包裝成一個氣泡元素，並顯示在畫面上
-        const userDiv = document.createElement("div"); // 建立一個div元素做為對話氣泡
-        userDiv.className = "chat-message user";       // 設定專屬樣式（在 CSS 中定義，靠右顯示）
-        userDiv.innerText = text;                      // 將使用者輸入的文字塞進去
-        chatMessages.appendChild(userDiv);             // 將這個氣泡加入到對話顯示區
+        // 1. 將使用者的文字氣泡顯示在畫面上，並寫入歷史紀錄
+        const userDiv = document.createElement("div");
+        userDiv.className = "chat-message user";
+        userDiv.innerText = text;
+        chatMessages.appendChild(userDiv);
+        saveMessageToHistory('user', text);
         
         chatInput.value = ""; // 送出後清空輸入框
-        chatMessages.scrollTop = chatMessages.scrollHeight; // 把畫面捲軸滾到最下面，方便看最新訊息
+        scrollToBottom();
 
-        // 2. 呼叫後端 API：透過 POST 請求將文字 JSON 化，發給 main.py 的 /api/chat 路由
+        // 2. 呼叫後端 API
         fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text }) // 打包成 JSON 格式發送，例如 {"message": "你好"}
+            body: JSON.stringify({ message: text })
         })
-            .then(res => res.json()) // 接收從後端 main.py 回傳的執行結果，並解開 JSON
+            .then(res => res.json())
             .then(data => {
-                // 3. 根據後端回傳回來的結果 (data.reply) 產生 AI 的對話氣泡
+                // 3. 產生 AI 對話氣泡，並寫入歷史紀錄
                 const aiDiv = document.createElement("div");
-                aiDiv.className = "chat-message ai"; // 設定 AI 專屬樣式（靠左顯示，底色不同）
-                
-                // 如果後端有發生錯誤，會把 "data.error" 丟回來，這裡如果沒有 reply 就顯示 error
-                aiDiv.innerText = data.reply || data.error; 
+                aiDiv.className = "chat-message ai";
+                const replyText = data.reply || data.error;
+                aiDiv.innerText = replyText;
                 chatMessages.appendChild(aiDiv);
+                saveMessageToHistory('ai', replyText);
                 
-                // 再次將捲軸滾動到最底，確保使用者看到 AI 剛回覆的訊息
-                chatMessages.scrollTop = chatMessages.scrollHeight; 
+                scrollToBottom();
             })
             .catch(err => {
-                // 4. 如果斷線、或其他原因導致完全連不到 Flask 伺服器，會在這裡顯示錯誤
                 const errDiv = document.createElement("div");
                 errDiv.className = "chat-message ai";
                 errDiv.innerText = "網路連線失敗，請稍後再試！";
                 chatMessages.appendChild(errDiv);
+                scrollToBottom();
             });
     }
 

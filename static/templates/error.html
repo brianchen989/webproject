@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<style>
+    /* 系統優化：錯誤頁面專屬極致奢華極光背景 */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        background: linear-gradient(-45deg, #090d16, #111827, #1e1b4b, #030712);
+        background-size: 400% 400%;
+        animation: aurora-flow 18s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: #ffffff;
+    }
+
+    @keyframes aurora-flow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* 炫光背景圈 */
+    .glow-blob {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(167, 139, 250, 0.35) 0%, rgba(0,0,0,0) 70%);
+        filter: blur(60px);
+        z-index: 1;
+        pointer-events: none;
+        animation: float-slow 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes float-slow {
+        0% { transform: translate(-30px, -30px) scale(1); }
+        100% { transform: translate(50px, 40px) scale(1.15); }
+    }
+
+    /* 磨砂玻璃卡片 */
+    .error-container {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        max-width: 480px;
+        padding: 40px 30px;
+        margin: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 
+                    0 0 20px rgba(167, 139, 250, 0.15);
+        text-align: center;
+    }
+
+    /* 巨大的錯誤代碼 */
+    .error-code {
+        font-size: 110px;
+        font-weight: 800;
+        line-height: 1;
+        background: linear-gradient(135deg, #a78bfa, #818cf8, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0 0 10px 0;
+        letter-spacing: -2px;
+        filter: drop-shadow(0 2px 8px rgba(167, 139, 250, 0.3));
+    }
+
+    /* 浣熊頭像裝飾 */
+    .raccoon-avatar-box {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 20px auto;
+        background: rgba(167, 139, 250, 0.15);
+        border: 1.5px solid rgba(167, 139, 250, 0.4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
+    }
+
+    .error-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin: 0 0 15px 0;
+    }
+
+    .error-message {
+        font-size: 15px;
+        color: #94a3b8;
+        line-height: 1.6;
+        margin: 0 0 35px 0;
+    }
+
+    /* 前往首頁傳送門按鈕 */
+    .home-portal-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, rgba(167, 139, 250, 0.8), rgba(129, 140, 248, 0.8));
+        border: none;
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+        text-decoration: none !important;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .home-portal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(167, 139, 250, 0.6), 
+                    0 0 15px rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, rgba(167, 139, 250, 0.95), rgba(129, 140, 248, 0.95));
+        color: #ffffff !important;
+    }
+
+    .home-portal-btn:active {
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="glow-blob"></div>
+
+<div class="error-container">
+    <div class="raccoon-avatar-box">🦝</div>
+    <h1 class="error-code">{{ code }}</h1>
+    <h2 class="error-title">{{ title }}</h2>
+    <p class="error-message">{{ message }}</p>
+    <a href="{{ url_for('index') }}" class="home-portal-btn">
+        <span>🏠 乘著傳送門回首頁</span>
+    </a>
+</div>
+{% endblock %}

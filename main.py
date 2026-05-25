@@ -29,12 +29,29 @@ if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# 系統優化：防瞬斷與閒置連線池優化
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,     # 每次查詢前自動 Ping 測試，確保連線存活
+    "pool_recycle": 280,       # 每 280 秒自動回收連線，避開 Supabase 連線閒置斷開
+    "pool_timeout": 30         # 取得連線最大超時時間
+}
 
 # 綁定資料庫服務
 models.db.init_app(app)
 
 # 設定 Flask Session 的 Secret Key (用於安全加密 cookie)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "racoon-development-secret-key-87324982")
+
+# ==========================================
+# 系統優化：全域錯誤異常捕獲處理器 🐾
+# ==========================================
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html', code=404, message="糟糕！這個頁面被小灰藏起來了...", title="找不到頁面 🐾"), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error.html', code=500, message="哎呀！系統好像開了個小差...請稍後再試！", title="系統錯誤 🐾"), 500
 
 # ==========================================
 # 使用者狀態全域注入 (Jinja2 Context Processor)
