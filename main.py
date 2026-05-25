@@ -647,9 +647,14 @@ def init_mini_games():
         models.db.session.commit()
         print("✅ 已將 clicking_earth.html 註冊至小遊戲資料庫！")
 
-# 啟動伺服器
-if __name__ == "__main__":
-    with app.app_context():
+# 全域確保在 Gunicorn / 外部 Web 伺服器啟動時也能自動建立資料表並初始化
+with app.app_context():
+    try:
         models.db.create_all() # 建立資料表
         init_mini_games()      # 初始化小遊戲資料庫紀錄
+    except Exception as e:
+        print("警告: 全域資料庫初始化失敗 (可能是資料庫連線尚未準備好):", e)
+
+# 啟動伺服器
+if __name__ == "__main__":
     app.run(debug=True, port=5000, host='0.0.0.0')
