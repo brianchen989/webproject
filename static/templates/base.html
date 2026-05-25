@@ -18,11 +18,40 @@
 </head>
 
 <body>
+    <!-- 頂部精緻閃現通知 (Toast Alerts) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-toast {{ category }}">
+              <span class="flash-icon">
+                {% if category == 'success' %}✓{% else %}⚠{% endif %}
+              </span>
+              <span class="flash-text">{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     {% block content %}
     <p>content</p>
     {% endblock %}
 
+    <script>
+        // 4 秒後自動淡出通知
+        document.addEventListener("DOMContentLoaded", function() {
+            const toasts = document.querySelectorAll('.flash-toast');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-20px)';
+                    toast.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    setTimeout(() => toast.remove(), 500);
+                }, 4000);
+            });
+        });
+    </script>
 </body>
 
 </html>

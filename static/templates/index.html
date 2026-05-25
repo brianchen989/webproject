@@ -8,8 +8,12 @@
 {% block content %}
 <header><!-- logo-->
     <button class="menu">&#9776;</button>
-    <section class="sec1">
-        <img id="raccoon1" img class="clickable" src="{{ url_for('static', filename='image/浣熊3.png') }}" alt="浣熊1" />
+    <section class="sec1" style="position: relative; display: flex; align-items: center; gap: 10px;">
+        <img id="raccoon1" class="clickable" src="{{ url_for('static', filename='image/浣熊3.png') }}" alt="浣熊1" />
+        <div class="ai-tooltip-bubble">
+            <span class="ai-pulse-dot"></span>
+            🤖 AI 助手 ｜ 點我問問小灰！🐾
+        </div>
     </section>
     <h1>這裡是logo</h1>
     <nav><!-- 導覽列-->
@@ -19,6 +23,12 @@
             <li><a class="nav-link" href="#17goals">介紹</a></li><!--跳至第三區 -->
             <li><a class="nav-link" href="#quoteBlock">冷知識</a></li>
             <li><a class="nav-link" href="#small_game">小遊戲</a></li>
+            {% if current_user %}
+                <li><a href="{{ url_for('profile') }}" class="nav-user-link"><span class="nav-user">🦝 {{ current_user.username }}</span></a></li>
+                <li><a class="nav-link logout-btn" href="{{ url_for('logout') }}">登出</a></li>
+            {% else %}
+                <li><a class="nav-link login-btn" href="{{ url_for('login') }}">登入 / 註冊</a></li>
+            {% endif %}
 
         </ul>
     </nav>
@@ -59,8 +69,8 @@
     </section>
 
     <section class="squares" id="17goals">
-        <div class="grid-container">
-            <h1>17項永續發展目標</h1>
+        <h1 style="text-align: center; color: rgb(0, 4, 127); margin-top: 100px; font-size: 36px; font-weight: bold; letter-spacing: 1px;">17項永續發展目標</h1>
+        <div class="grid-container" style="margin-top: 20px;">
             <a href="{{ url_for('goal', goal_id=1) }}" class="square">
                 <img src="{{ url_for('static', filename='image/E-WEB-Goal-01.png') }}" alt="介紹圖片1">
             </a>
@@ -129,23 +139,25 @@
 
 
     <section class="product" id="small_game"><!-- 第四區-->
-
-        <div>
-            <h2>
-                小遊戲
-            </h2>
-            <img id="productImage" src="" alt="圖片1">
-
-            <br>
-            <p id="productName">下樓梯</p>
+        <h2 class="game-section-title">小遊戲</h2>
+        
+        <div class="game-carousel-container">
+            <!-- 左切換按鈕 -->
+            <button id="left_button" class="carousel-btn" onclick="left_btn_click()">‹</button>
+            
+            <!-- 遊戲卡片 -->
+            <div class="game-card">
+                <img id="productImage" src="" alt="圖片1">
+                <p id="productName">下樓梯</p>
+            </div>
+            
+            <!-- 右切換按鈕 -->
+            <button id="right_button" class="carousel-btn" onclick="right_btn_click()">›</button>
         </div>
-        <button id=left_button onclick="left_btn_click(this)">
-            < </button>
-                <button id=right_button onclick="right_btn_click(this)"> > </button>
-                <button id="detail_button"
-                    onclick="window.location.href='https://www.youtube.com/watch?v=FxfEzHiIgQU';">...</button><!-- 額外按鍵(功能待補)-->
-
-
+        
+        <!-- 詳細按鈕 -->
+        <button id="detail_button" onclick="detail_btn_click()">...</button>
+    </section>
 </main>
 
 <footer>

@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<style>
+    /* 重置與背景設定 - 極致奢華極光流動效果 */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        background: linear-gradient(-45deg, #020617, #0f172a, #1b254b, #200f40);
+        background-size: 400% 400%;
+        animation: aurora-flow 18s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        padding: 50px 0;
+    }
+
+    @keyframes aurora-flow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* 裝飾性炫光背景圈 (Glow Blobs) */
+    .glow-blob {
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(0,0,0,0) 70%);
+        filter: blur(55px);
+        z-index: 1;
+        pointer-events: none;
+    }
+    .blob-1 {
+        top: 5%;
+        right: 15%;
+        animation: float-slow-1 14s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+        bottom: 5%;
+        left: 15%;
+        animation: float-slow-2 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes float-slow-1 {
+        0% { transform: translate(0, 0) scale(1.1); }
+        100% { transform: translate(-60px, 50px) scale(0.9); }
+    }
+    @keyframes float-slow-2 {
+        0% { transform: translate(0, 0) scale(0.9); }
+        100% { transform: translate(70px, -40px) scale(1.2); }
+    }
+
+    /* 磨砂玻璃主體卡片 (Glassmorphism Container) */
+    .profile-card {
+        position: relative;
+        z-index: 10;
+        width: 90%;
+        max-width: 580px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35),
+                    inset 0 0 20px rgba(255, 255, 255, 0.05);
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    /* 回首頁漂浮小按鈕 */
+    .home-back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 8px 14px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .home-back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    /* 浣熊吉祥物漂浮頭像與個人狀態 */
+    .mascot-profile-header {
+        margin-top: 15px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mascot-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        padding: 6px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        animation: bounce-mascot 3.5s ease-in-out infinite;
+        transition: all 0.3s;
+    }
+
+    .mascot-avatar:hover {
+        transform: rotate(10deg) scale(1.1);
+        border-color: #c084fc;
+        box-shadow: 0 8px 30px rgba(192, 132, 252, 0.4);
+    }
+
+    @keyframes bounce-mascot {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    .profile-card h2 {
+        color: #ffffff;
+        font-size: 26px;
+        font-weight: 800;
+        margin: 10px 0 5px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .member-tag {
+        background: linear-gradient(90deg, #c084fc 0%, #a855f7 100%);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
+    }
+
+    /* 精美 Tab 分頁導覽器 */
+    .tabs-nav {
+        display: flex;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 5px;
+        margin-bottom: 30px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05),
+                    inset 0 0 10px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* 分頁內容面板區 */
+    .tab-panel {
+        display: none;
+        animation: fadeIn 0.4s ease-out forwards;
+        text-align: left;
+    }
+
+    .tab-panel.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 表單欄位排版 */
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .input-field-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-field-wrapper input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: #ffffff;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .input-field-wrapper input:focus {
+        border-color: rgba(192, 132, 252, 0.8);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 18px rgba(192, 132, 252, 0.35);
+    }
+
+    .input-field-wrapper input:disabled {
+        background: rgba(255, 255, 255, 0.02);
+        border-color: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.4);
+        cursor: not-allowed;
+    }
+
+    /* 即時防呆通知與狀態提示 */
+    .live-feedback {
+        font-size: 12px;
+        margin-top: 6px;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    .live-feedback.valid { color: #4ade80; display: flex; }
+    .live-feedback.invalid { color: #fca5a5; display: flex; }
+
+    /* 頂級漸變確認提交按鈕 */
+    .submit-glow-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7e22ce 100%);
+        background-size: 200% auto;
+        border: none;
+        border-radius: 14px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        padding: 15px 20px;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.25);
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+
+    .submit-glow-btn:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(168, 85, 247, 0.4);
+    }
+
+    .submit-glow-btn:active {
+        transform: translateY(0);
+    }
+
+    /* 錯誤/警告提示面板 */
+    .alert-box {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: #fca5a5;
+        font-size: 14px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+    }
+
+    /* 系統詳細資料欄位 (唯讀) */
+    .read-only-meta {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .read-only-meta div {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .read-only-meta div span.val {
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 600;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 背景漸變發光圈 -->
+<div class="glow-blob blob-1"></div>
+<div class="glow-blob blob-2"></div>
+
+<div class="profile-card">
+    <!-- 回首頁 -->
+    <a href="{{ url_for('index') }}" class="home-back-btn">
+        <span>←</span> 首頁
+    </a>
+
+    <!-- 吉祥物頭像與標題 -->
+    <div class="mascot-profile-header">
+        <img class="mascot-avatar" src="{{ url_for('static', filename='image/浣熊3.png') }}" alt="Raccoon Mascot">
+        <h2>{{ current_user.username }} 的個人中心</h2>
+        <span class="member-tag">SDGs 永續成員</span>
+    </div>
+
+    <!-- 閃現錯誤訊息渲染 (主要用於 Tab 導向後的頁面提示) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if category == 'error' %}
+            <div class="alert-box">
+                <span>⚠</span>
+                <span>{{ message }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Tab 導航選單 -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-profile')">基本資料</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-security')">帳號安全</button>
+    </div>
+
+    <!-- Tab 1: 基本資料更新 -->
+    <div id="tab-profile" class="tab-panel active">
+        <form method="POST" action="{{ url_for('profile') }}" autocomplete="off">
+            <input type="hidden" name="action" value="update_profile">
+
+            <!-- 使用者名稱 -->
+            <div class="form-group">
+                <label for="username">使用者名稱 (暱稱)</label>
+                <div class="input-field-wrapper">
+                    <input type="text" id="username" name="username" value="{{ current_user.username }}" required>
+                </div>
+            </div>
+
+            <!-- 電子信箱 -->
+            <div class="form-group">
+                <label for="email">電子信箱 Email</label>
+                <div class="input-field-wrapper">
+                    <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+                </div>
+            </div>
+
+            <!-- 帳號建立與上次登入紀錄 (唯讀資訊) -->
+            <div class="read-only-meta">
+                <div>
+                    <span>UUID 身分識別碼</span>
+                    <span class="val">{{ current_user.id[:18] }}...</span>
+                </div>
+                <div>
+                    <span>註冊時間</span>
+                    <span class="val">{{ current_user.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div>
+                    <span>上次登入</span>
+                    <span class="val">
+                        {% if current_user.last_login %}
+                            {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            首次體驗中
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-glow-btn">儲存基本資料</button>
+        </form>
+    </div>
+
+    <!-- Tab 2: 密碼安全性修改 -->
+    <div id="tab-security" class="tab-panel">
+        <form method="POST" action="{{ url_for('profile') }}" id="passwordForm">
+            <input type="hidden" name="action" value="change_password">
+
+            <!-- 目前舊密碼 -->
+            <div class="form-group">
+                <label for="old_password">目前密碼 (舊密碼)</label>
+                <div class="input-field-wrapper">
+                    <input type="password" id="old_password" name="old_password" placeholder="請輸入您目前的密碼" required>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 25px 0;">
+
+            <!-- 新密碼 -->
+            <div class="form-group">
+                <label for="new_password">安全新密碼 (至少 6 個字元)</label>
+                <div class="input-field-wrapper">
+                    <input type="password" id="new_password" name="new_password" placeholder="請輸入新設定的密碼" minlength="6" required>
+                </div>
+                <div class="live-feedback" id="pwdHint">
+                    <span class="indicator">●</span> <span class="hint-text">密碼強度</span>
+                </div>
+            </div>
+
+            <!-- 確認新密碼 -->
+            <div class="form-group">
+                <label for="confirm_password">確認您的新密碼</label>
+                <div class="input-field-wrapper">
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="請再次輸入新設定的密碼" required>
+                </div>
+                <div class="live-feedback" id="matchHint">
+                    <span class="indicator">●</span> <span class="hint-text">密碼不符</span>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-glow-btn">變更帳號密碼</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tab 分頁切換功能
+    function switchTab(evt, tabId) {
+        // 1. 隱藏所有分頁內容
+        const panels = document.querySelectorAll('.tab-panel');
+        panels.forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        // 2. 取消所有 Tab 按鈕的 active 狀態
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // 3. 顯示當前分頁並將目前按鈕設為 active
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // 新密碼前端防呆即時比對校驗
+    document.addEventListener("DOMContentLoaded", function() {
+        const newPassword = document.getElementById("new_password");
+        const confirmPassword = document.getElementById("confirm_password");
+        const pwdHint = document.getElementById("pwdHint");
+        const matchHint = document.getElementById("matchHint");
+
+        if (newPassword && confirmPassword) {
+            newPassword.addEventListener("input", function() {
+                const pwd = newPassword.value;
+                if (pwd.length === 0) {
+                    pwdHint.className = "live-feedback";
+                } else if (pwd.length < 6) {
+                    pwdHint.className = "live-feedback invalid";
+                    pwdHint.querySelector(".hint-text").textContent = "密碼長度太短 (至少 6 個字元)";
+                } else {
+                    pwdHint.className = "live-feedback valid";
+                    pwdHint.querySelector(".hint-text").textContent = "安全強度充足！";
+                }
+                checkPasswordMatch();
+            });
+
+            confirmPassword.addEventListener("input", checkPasswordMatch);
+        }
+
+        function checkPasswordMatch() {
+            const pwd = newPassword.value;
+            const confirm = confirmPassword.value;
+
+            if (confirm.length === 0) {
+                matchHint.className = "live-feedback";
+            } else if (pwd === confirm) {
+                matchHint.className = "live-feedback valid";
+                matchHint.querySelector(".hint-text").textContent = "密碼符合！";
+            } else {
+                matchHint.className = "live-feedback invalid";
+                matchHint.querySelector(".hint-text").textContent = "確認密碼與新密碼不符，請重新比對";
+            }
+        }
+    });
+</script>
+{% endblock %}

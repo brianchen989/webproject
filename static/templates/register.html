@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<style>
+    /* 重置與背景設定 - 極緻奢華極光流動效果 */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        background: linear-gradient(-45deg, #020617, #0f172a, #1b254b, #200f40);
+        background-size: 400% 400%;
+        animation: aurora-flow 18s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        padding: 40px 0; /* 給予上下邊距以防內容溢出 */
+    }
+
+    @keyframes aurora-flow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* 裝飾性炫光背景圈 (Glow Blobs) */
+    .glow-blob {
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, rgba(0,0,0,0) 70%);
+        filter: blur(55px);
+        z-index: 1;
+        pointer-events: none;
+    }
+    .blob-1 {
+        top: 5%;
+        right: 10%;
+        animation: float-slow-1 14s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+        bottom: 5%;
+        left: 10%;
+        animation: float-slow-2 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes float-slow-1 {
+        0% { transform: translate(0, 0) scale(1.1); }
+        100% { transform: translate(-60px, 50px) scale(0.9); }
+    }
+    @keyframes float-slow-2 {
+        0% { transform: translate(0, 0) scale(0.9); }
+        100% { transform: translate(70px, -40px) scale(1.2); }
+    }
+
+    /* 磨砂玻璃主體卡片 (Glassmorphism Container) */
+    .register-container {
+        position: relative;
+        z-index: 10;
+        width: 90%;
+        max-width: 480px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 45px 40px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35),
+                    inset 0 0 20px rgba(255, 255, 255, 0.05);
+        box-sizing: border-box;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    /* 回首頁漂浮小按鈕 */
+    .home-back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 8px 14px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .home-back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    /* 標題與引導字元 */
+    .register-container h2 {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 800;
+        margin: 20px 0 8px 0;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .register-container p.subtitle {
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 14px;
+        margin: 0 0 35px 0;
+        letter-spacing: 0.5px;
+    }
+
+    /* 表單組樣式 */
+    .form-group {
+        position: relative;
+        text-align: left;
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* 輸入框特製發光外框 */
+    .input-field-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-field-wrapper input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: #ffffff;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .input-field-wrapper input:focus {
+        border-color: rgba(192, 132, 252, 0.8);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 18px rgba(192, 132, 252, 0.35),
+                    inset 0 0 8px rgba(255, 255, 255, 0.05);
+    }
+
+    /* 密碼防呆與即時驗證小提示 */
+    .live-feedback {
+        font-size: 12px;
+        margin-top: 6px;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    .live-feedback.valid {
+        color: #4ade80;
+        display: flex;
+    }
+
+    .live-feedback.invalid {
+        color: #fca5a5;
+        display: flex;
+    }
+
+    /* 錯誤與通知訊息框 */
+    .alert-box {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: #fca5a5;
+        font-size: 14px;
+        margin-bottom: 25px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 頂級豪華漸變按鈕 */
+    .submit-glow-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7e22ce 100%);
+        background-size: 200% auto;
+        border: none;
+        border-radius: 14px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 16px 20px;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        margin-bottom: 25px;
+    }
+
+    .submit-glow-btn:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(168, 85, 247, 0.45);
+    }
+
+    .submit-glow-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 6px 15px rgba(168, 85, 247, 0.3);
+    }
+
+    /* 導引超連結 */
+    .login-footer-text {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.45);
+        margin: 0;
+    }
+
+    .login-footer-text a {
+        color: #c084fc;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .login-footer-text a:hover {
+        color: #e9d5ff;
+        text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+        text-decoration: underline;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 背景漸變發光圈 -->
+<div class="glow-blob blob-1"></div>
+<div class="glow-blob blob-2"></div>
+
+<div class="register-container">
+    <!-- 回首頁 -->
+    <a href="{{ url_for('index') }}" class="home-back-btn">
+        <span>←</span> 首頁
+    </a>
+
+    <h2>註冊新帳號</h2>
+    <p class="subtitle">建立個人專屬檔案，開啟 SDGs 旅程與排行榜挑戰 🦝</p>
+
+    <!-- 閃現錯誤訊息渲染 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if category == 'error' %}
+            <div class="alert-box">
+                <span>⚠</span>
+                <span>{{ message }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}" id="registerForm" autocomplete="off">
+        <!-- 使用者名稱 -->
+        <div class="form-group">
+            <label for="username">使用者名稱 (暱稱)</label>
+            <div class="input-field-wrapper">
+                <input type="text" id="username" name="username" placeholder="例：浣熊特工 (排行榜會顯示此名稱)" required>
+            </div>
+        </div>
+
+        <!-- 電子郵件 -->
+        <div class="form-group">
+            <label for="email">電子郵件 Email</label>
+            <div class="input-field-wrapper">
+                <input type="email" id="email" name="email" placeholder="例：brianchen989@gmail.com" required>
+            </div>
+        </div>
+
+        <!-- 密碼 -->
+        <div class="form-group">
+            <label for="password">安全密碼 (至少 6 個字元)</label>
+            <div class="input-field-wrapper">
+                <input type="password" id="password" name="password" placeholder="請輸入密碼" minlength="6" required>
+            </div>
+            <div class="live-feedback" id="pwdHint">
+                <span class="indicator">●</span> <span class="hint-text">密碼強度</span>
+            </div>
+        </div>
+
+        <!-- 確認密碼 -->
+        <div class="form-group">
+            <label for="confirm_password">確認您的密碼</label>
+            <div class="input-field-wrapper">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="請再次輸入密碼" required>
+            </div>
+            <div class="live-feedback" id="matchHint">
+                <span class="indicator">●</span> <span class="hint-text">兩次輸入密碼不符</span>
+            </div>
+        </div>
+
+        <!-- 註冊按鈕 -->
+        <button type="submit" class="submit-glow-btn">建立新帳號</button>
+    </form>
+
+    <!-- 登入導引 -->
+    <p class="login-footer-text">
+        已經有帳號了嗎？ <a href="{{ url_for('login') }}">立即登入</a>
+    </p>
+</div>
+
+<script>
+    // 即時密碼強度與確認密碼驗證
+    document.addEventListener("DOMContentLoaded", function() {
+        const passwordInput = document.getElementById("password");
+        const confirmInput = document.getElementById("confirm_password");
+        const pwdHint = document.getElementById("pwdHint");
+        const matchHint = document.getElementById("matchHint");
+
+        // 監聽密碼輸入
+        passwordInput.addEventListener("input", function() {
+            const pwd = passwordInput.value;
+            if (pwd.length === 0) {
+                pwdHint.className = "live-feedback";
+            } else if (pwd.length < 6) {
+                pwdHint.className = "live-feedback invalid";
+                pwdHint.querySelector(".hint-text").textContent = "密碼太短 (至少 6 個字元)";
+            } else {
+                pwdHint.className = "live-feedback valid";
+                pwdHint.querySelector(".hint-text").textContent = "密碼長度符合規範！";
+            }
+            checkMatch();
+        });
+
+        // 監聽確認密碼輸入
+        confirmInput.addEventListener("input", checkMatch);
+
+        function checkMatch() {
+            const pwd = passwordInput.value;
+            const confirmPwd = confirmInput.value;
+
+            if (confirmPwd.length === 0) {
+                matchHint.className = "live-feedback";
+            } else if (pwd === confirmPwd) {
+                matchHint.className = "live-feedback valid";
+                matchHint.querySelector(".hint-text").textContent = "確認密碼符合！";
+            } else {
+                matchHint.className = "live-feedback invalid";
+                matchHint.querySelector(".hint-text").textContent = "確認密碼不相符，請重新確認";
+            }
+        }
+    });
+</script>
+{% endblock %}

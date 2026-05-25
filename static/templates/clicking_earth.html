@@ -175,10 +175,12 @@
     <div class="glass-card" style="text-align: center;">
         <h2 class="result-title">結算與排行榜</h2>
         <p style="color: var(--text-muted); margin-bottom: 1rem;">你的目前分數：<span id="display-final-score" style="font-weight: bold; color: #fbbf24; font-size: 1.5rem;">0</span></p>
-        <div id="submit-score-section">
-            <input type="text" id="player-name" placeholder="輸入暱稱記錄分數" style="padding: 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.3); font-size: 1rem; margin-right: 10px; background: rgba(0,0,0,0.3); color: white;">
-            <button class="btn-primary" onclick="submitScore()">送出成績</button>
-            <p id="submit-msg" style="margin-top: 10px; color: #34d399;"></p>
+        
+        <!-- 排行榜紀錄決策引導區塊 (動態流) -->
+        <div id="submit-score-section" style="margin: 2rem 0; min-height: 120px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;">
+            <div id="flow-container" style="width: 100%; transition: all 0.3s ease;">
+                <button class="btn-primary" onclick="startSubmitFlow()" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);">🏆 記錄當前成績至排行榜</button>
+            </div>
         </div>
     </div>
 
@@ -503,30 +505,225 @@
         // We removed dynamic earth changing so it stays on earth3.png
     }
 
-    // Leaderboard logic
-    function submitScore() {
+    // 用於判定使用者登入狀態與使用者名稱
+    const isLoggedIn = {% if current_user %}true{% else %}false{% endif %};
+    const currentUsername = {% if current_user %}"{{ current_user.username }}"{% else %}"匿名玩家"{% endif %};
+    let lockedScore = 0; // 用於鎖定上傳分數
+
+    // 啟動放置遊戲決策流
+    function startSubmitFlow() {
+        lockedScore = Math.floor(score);
+        initResultFlow();
+    }
+
+    // 初始化決策流：Step 1
+    function initResultFlow() {
+        const flowContainer = document.getElementById('flow-container');
+        flowContainer.innerHTML = `
+            <div class="flow-step" id="flow-step-1" style="animation: fadeIn 0.4s ease; text-align: center;">
+                <p style="font-size: 1.25rem; margin-bottom: 20px; color: #fff; font-weight: 600;">🏆 準備上傳！是否將目前的永續點數 (${lockedScore} 分) 紀錄至排行榜？</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="handleStep1(true)" style="background: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); padding: 10px 30px;">是，我想紀錄</button>
+                    <button class="btn-primary" onclick="handleStep1(false)" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); box-shadow: none; padding: 10px 30px;">否，不用了</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 重設決策區為初始按鈕狀態
+    function resetFlowContainer() {
+        document.getElementById('flow-container').innerHTML = `
+            <button class="btn-primary" onclick="startSubmitFlow()" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);">🏆 記錄當前成績至排行榜</button>
+        `;
+    }
+
+    // Step 1 處理函數
+    function handleStep1(record) {
+        if (!record) {
+            document.getElementById('flow-container').innerHTML = `
+                <div style="color: var(--text-muted); font-size: 1.1rem; padding: 15px; animation: fadeIn 0.4s ease;">
+                    成績未記錄。您可以繼續遊玩並直接查看下方的排行榜！
+                </div>
+            `;
+            setTimeout(() => {
+                resetFlowContainer();
+            }, 3000);
+            return;
+        }
+
+        // Step 2：檢查登入狀態
+        if (isLoggedIn) {
+            showLoggedInSubmit();
+        } else {
+            showStep3();
+        }
+    }
+
+    // Step 2：已登入狀態，直接輸入暱稱提交
+    function showLoggedInSubmit() {
+        document.getElementById('flow-container').innerHTML = `
+            <div class="flow-step" style="animation: fadeIn 0.4s ease; text-align: center; width: 100%;">
+                <p style="font-size: 1.15rem; margin-bottom: 15px; color: #fff;">偵測到您已登入帳號：<strong style="color: #a78bfa; text-shadow: 0 0 10px rgba(167,139,250,0.3);">${currentUsername}</strong></p>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;">
+                    <div style="display: flex; gap: 12px; width: 100%; max-width: 480px; justify-content: center; flex-wrap: wrap;">
+                        <input type="text" id="player-name" placeholder="輸入要顯示在排行榜的暱稱" value="${currentUsername}" 
+                               style="flex-grow: 1; min-width: 200px; padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: white; font-size: 1rem; outline: none; transition: border 0.3s;"
+                               onfocus="this.style.borderColor='rgba(167, 139, 250, 0.8)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+                        <button class="btn-primary" onclick="submitScoreFlow()" style="padding: 12px 28px; background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);">送出成績</button>
+                    </div>
+                    <div id="submit-flow-msg" style="margin-top: 5px; font-size: 0.95rem; color: #34d399; font-weight: 500; min-height: 20px;"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Step 2：已登入提交 AJAX
+    function submitScoreFlow() {
         const name = document.getElementById('player-name').value.trim();
-        if (!name) { alert('請輸入暱稱！'); return; }
-        
-        fetch('/api/submit_score', {
+        if (!name) {
+            alert('請輸入暱稱！');
+            return;
+        }
+
+        const msgDiv = document.getElementById('submit-flow-msg');
+        msgDiv.innerText = '儲存中...';
+
+        fetch('/api/submit_score/clicking_earth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, score: Math.floor(score) })
+            body: JSON.stringify({ name: name, score: lockedScore })
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                document.getElementById('submit-msg').innerText = '✅ 成績儲存成功！';
-                loadLeaderboard();
+                msgDiv.innerHTML = '✅ 成績已成功載入排行榜！';
+                setTimeout(() => {
+                    resetFlowContainer();
+                }, 2000);
+                loadLeaderboard(); // 重新整理排行榜
             } else {
-                alert('儲存失敗：' + (data.error || '未知錯誤'));
+                msgDiv.innerHTML = `<span style="color:var(--danger)">❌ 儲存失敗：${data.error || '未知錯誤'}</span>`;
             }
         })
-        .catch(err => alert('連線發生錯誤'));
+        .catch(err => {
+            msgDiv.innerHTML = '<span style="color:var(--danger)">❌ 連線發生錯誤</span>';
+        });
+    }
+
+    // Step 3：未登入狀態，詢問是否前往登入
+    function showStep3() {
+        document.getElementById('flow-container').innerHTML = `
+            <div class="flow-step" style="animation: fadeIn 0.4s ease; text-align: center;">
+                <p style="font-size: 1.15rem; margin-bottom: 8px; color: #fbbf24; font-weight: 600;">您目前尚未登入帳號！</p>
+                <p style="font-size: 1rem; margin-bottom: 20px; color: var(--text-muted);">是否立即登入帳號，以便將此好成績永久保留在排行榜中？</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="handleStep3(true)" style="background: var(--primary); padding: 10px 30px;">是，前往登入</button>
+                    <button class="btn-primary" onclick="handleStep3(false)" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); box-shadow: none; padding: 10px 30px;">否，暫不登入</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Step 3 處理函數
+    function handleStep3(goToLogin) {
+        if (goToLogin) {
+            // 暫存分數
+            localStorage.setItem('pending_score_game', 'clicking_earth');
+            localStorage.setItem('pending_score_value', lockedScore);
+            // 重導向
+            window.location.href = '/login?next=/clicking_earth.html';
+        } else {
+            showStep4();
+        }
+    }
+
+    // Step 4：不登入警告與確認
+    function showStep4() {
+        document.getElementById('flow-container').innerHTML = `
+            <div class="flow-step" style="animation: fadeIn 0.4s ease; text-align: center;">
+                <p style="font-size: 1.15rem; margin-bottom: 8px; color: var(--danger); font-weight: 600;">⚠️ 警告：不登入無法計入成績！</p>
+                <p style="font-size: 1rem; margin-bottom: 20px; color: var(--text-muted);">若不登入，您的得分將不會記錄到任何排行榜中。您確認要放棄紀錄嗎？</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="handleStep4(true)" style="background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); padding: 10px 30px;">是，確認放棄</button>
+                    <button class="btn-primary" onclick="handleStep4(false)" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); box-shadow: none; padding: 10px 30px;">否，返回登入</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Step 4 處理函數
+    function handleStep4(confirmAbandon) {
+        if (confirmAbandon) {
+            document.getElementById('flow-container').innerHTML = `
+                <div style="color: var(--text-muted); font-size: 1.1rem; padding: 15px; animation: fadeIn 0.4s ease;">
+                    成績未記錄。您可以繼續遊玩並直接查看下方的排行榜！
+                </div>
+            `;
+            setTimeout(() => {
+                resetFlowContainer();
+            }, 3000);
+        } else {
+            showStep3();
+        }
+    }
+
+    // 自動補記機制：在頁面載入時自動偵測 localStorage
+    function checkPendingScore() {
+        const pendingGame = localStorage.getItem('pending_score_game');
+        const pendingValue = localStorage.getItem('pending_score_value');
+
+        if (pendingGame === 'clicking_earth' && pendingValue !== null) {
+            if (isLoggedIn) {
+                const scoreToSubmit = parseInt(pendingValue);
+
+                // 在頁面上方插入極緻精美的 Glassmorphic 自動補記橫幅提示
+                const alertHtml = `
+                    <div id="pending-alert" class="glass-card fade-in" style="margin-bottom: 20px; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--success); padding: 1.5rem; text-align: center; border-radius: 12px; backdrop-filter: blur(10px); animation: fadeIn 0.5s ease;">
+                        <h3 style="color: #34d399; margin-bottom: 8px; font-size: 1.4rem;">🎉 登入成功！成績已自動載入</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 1.05rem;">偵測到您在登入前獲得的成績：<strong style="color: #fff; font-size: 1.2rem;">${scoreToSubmit} 分</strong>。系統已自動為您關聯至帳號 <strong style="color: #a78bfa;">${currentUsername}</strong> 並記錄至排行榜！</p>
+                        <button class="btn-primary" onclick="dismissPendingAlert()" style="background: var(--success); font-size: 0.95rem; padding: 8px 24px;">太棒了</button>
+                    </div>
+                `;
+
+                const container = document.querySelector('.main-container');
+                if (container) {
+                    container.insertAdjacentHTML('afterbegin', alertHtml);
+                }
+
+                // 送出背景 AJAX 請求補記
+                fetch('/api/submit_score/clicking_earth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: currentUsername, score: scoreToSubmit })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // 清除暫存
+                        localStorage.removeItem('pending_score_game');
+                        localStorage.removeItem('pending_score_value');
+                        loadLeaderboard(); // 重新整理排行榜
+                    } else {
+                        console.error("補記失敗:", data.error);
+                    }
+                })
+                .catch(err => console.error("補記連線錯誤:", err));
+            }
+        }
+    }
+
+    function dismissPendingAlert() {
+        const alertBox = document.getElementById('pending-alert');
+        if (alertBox) {
+            alertBox.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            alertBox.style.opacity = '0';
+            alertBox.style.transform = 'translateY(-20px)';
+            setTimeout(() => alertBox.remove(), 500);
+        }
     }
 
     function loadLeaderboard() {
-        fetch('/api/leaderboard')
+        fetch('/api/leaderboard/clicking_earth')
         .then(res => res.json())
         .then(data => {
             const container = document.getElementById('leaderboard-content');
@@ -553,6 +750,7 @@
         initSkills();
         updateDisplay();
         loadLeaderboard();
+        checkPendingScore();
     });
 </script>
 </body>
