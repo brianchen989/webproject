@@ -1,4 +1,25 @@
+# 虛擬環境 (Virtual Environments)
 venv/
+.venv/
+env/
+
+# Python 暫存與快取 (Python Cache)
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# 環境變數與敏感設定 (Sensitive Configurations)
 .env
+.flaskenv
+
+# 本地 SQLite 資料庫與日誌 (Local Database & Logs)
+*.db
+instance/
+error_log.txt
+
+# 開發工具配置 (IDE Configurations)
+.vscode/
+.idea/
+.DS_Store
