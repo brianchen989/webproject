@@ -161,8 +161,12 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     // 隨機選一則語錄
     const random = quotes[Math.floor(Math.random() * quotes.length)];
-    document.getElementById("quoteBlock").innerHTML =
-        `<p>${random.text}</p><p>— ${random.author}</p>`;
+    const quoteEl = document.getElementById("quoteBlock");
+    if (quoteEl) {
+        quoteEl.innerHTML =
+            `<h3>💡 ${random.author}</h3>
+             <p class="quote-content">${random.text}</p>`;
+    }
 
 
 
@@ -172,20 +176,59 @@ document.addEventListener("DOMContentLoaded", function () {
 // 作品輯切換功能
 let currentImageIndex = 0;
 const images = [
-    { src: "static/image/quiz.png", name: '基本測驗', alt: "基本測驗", url: 'quiz.html' },
-    { src: "static/images/clicking_earth/earth3.png", name: 'Clicking Earth', alt: "Clicking Earth", url: 'clicking_earth.html' },
-    { src: "static/image/浣熊施工中.png", name: '練PYTHON', alt: "練PYTHON", url: '' }
+    { 
+        src: "static/image/quiz.png", 
+        name: '基本測驗', 
+        alt: "基本測驗", 
+        url: 'quiz.html',
+        desc: '最全面的 SDGs 知識檢索測驗！每次將從精心準備的 50 題豐富題庫中隨機抽取 20 題，來測試你的跨領域永續素養吧！🐾'
+    },
+    { 
+        src: "static/images/clicking_earth/earth3.png", 
+        name: 'Clicking Earth', 
+        alt: "Clicking Earth", 
+        url: 'clicking_earth.html',
+        desc: '這是一款透過快速點擊和購置綠色能源（如風力、地熱與太陽能）來為地球累積環保分數、淨化生態環境的休閒永續放置型遊戲！🐾'
+    },
+    { 
+        src: "static/image/浣熊施工中.png", 
+        name: '敬請期待', 
+        alt: "敬請期待", 
+        url: '',
+        desc: '小灰與開發團隊正在後台拼命籌備與編寫全新的神秘小遊戲！這將是一款將更多 SDGs 永續議題與趣味互動深度結合的精彩遊戲，敬請期待！🐾'
+    }
 ];
 
 // 更新顯示並綁定點擊連結
 function updateProductDisplay() {
     const productImage = document.getElementById('productImage');
     const productName = document.getElementById('productName');
+    const gameDescTitle = document.getElementById('gameDescTitle');
+    const gameDescText = document.getElementById('gameDescText');
+    const gamePlayBtn = document.getElementById('gamePlayBtn');
     if (!productImage || !productName) return;
 
     productImage.src = images[currentImageIndex].src;
     productImage.alt = images[currentImageIndex].alt;
     productName.textContent = images[currentImageIndex].name;
+
+    // 動態更新卡片反面內容
+    if (gameDescTitle) gameDescTitle.textContent = images[currentImageIndex].name;
+    if (gameDescText) gameDescText.textContent = images[currentImageIndex].desc;
+    
+    // 動態綁定反面開始遊戲按鈕
+    if (gamePlayBtn) {
+        const url = images[currentImageIndex].url;
+        if (url) {
+            gamePlayBtn.textContent = "立即遊玩 🚀";
+            gamePlayBtn.classList.remove('disabled');
+            gamePlayBtn.onclick = () => window.open(url, '_blank');
+        } else {
+            gamePlayBtn.textContent = "施工中... 🦝";
+            gamePlayBtn.classList.add('disabled');
+            gamePlayBtn.onclick = null;
+        }
+    }
 
     // 點圖片跳轉（在新分頁開啟）
     productImage.style.cursor = 'pointer';
@@ -212,5 +255,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function detail_btn_click() {
-    window.location.href = "https://www.youtube.com/watch?v=FxfEzHiIgQU";
+    window.location.href = "/games";
 }

@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<style>
+    /* 小遊戲大廳專屬的高端毛玻璃設計 */
+    .lobby-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .lobby-title {
+        font-size: 45px;
+        color: rgb(0, 4, 127);
+        font-weight: 900;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .lobby-subtitle {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 50px;
+        letter-spacing: 1px;
+    }
+
+    /* 卡片網格排版 */
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 35px;
+        padding: 10px;
+    }
+
+    /* 遊戲卡片 Premium 樣式 */
+    .game-lobby-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 4, 127, 0.06),
+                    0 1px 3px rgba(0, 0, 0, 0.02);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                    box-shadow 0.4s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-lobby-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 45px rgba(0, 4, 127, 0.15);
+    }
+
+    /* 卡片縮圖 */
+    .card-img-wrapper {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+    }
+
+    .card-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .game-lobby-card:hover .card-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    /* 狀態標籤 */
+    .status-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    }
+
+    .status-badge.wip {
+        background: linear-gradient(135deg, #e67e22, #d35400);
+        box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+    }
+
+    /* 卡片內容區 */
+    .card-info {
+        padding: 30px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    .game-lobby-name {
+        font-size: 24px;
+        color: rgb(0, 4, 127);
+        font-weight: 800;
+        margin: 0 0 12px 0;
+    }
+
+    .game-lobby-desc {
+        font-size: 15px;
+        color: #555;
+        line-height: 1.6;
+        margin: 0 0 20px 0;
+        min-height: 72px; /* 統一說明欄高度 */
+    }
+
+    /* SDGs 目標標籤容器 */
+    .goals-badges-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 25px;
+    }
+
+    .goal-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(0, 4, 127, 0.08);
+        color: rgb(0, 4, 127);
+    }
+
+    /* 開始按鈕 */
+    .play-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, rgb(0, 4, 127) 0%, rgb(49, 163, 192) 100%);
+        color: white;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: bold;
+        font-size: 16px;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(0, 4, 127, 0.2);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-sizing: border-box; /* 確保 padding 不會撐大按鈕導致超出右側 */
+    }
+
+    .play-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 4, 127, 0.35);
+        color: white !important;
+    }
+
+    .play-btn:active {
+        transform: translateY(0);
+    }
+
+    .play-btn.disabled {
+        background: #ccc;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    /* 回首頁按鈕 */
+    .back-home-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 50px;
+        padding: 12px 24px;
+        background: #ffffff;
+        color: rgb(0, 4, 127);
+        border: 2px solid rgb(0, 4, 127);
+        border-radius: 30px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .back-home-btn:hover {
+        background: rgb(0, 4, 127);
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 4, 127, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 主背景調整，與主頁色調一致 -->
+<div style="background-color: rgb(199, 205, 226); min-height: 100vh; padding-top: 120px; box-sizing: border-box;">
+    <div class="lobby-container">
+        <h1 class="lobby-title">🦝 小遊戲大廳 🎮</h1>
+        <p class="lobby-subtitle">一邊遊玩一邊學習，探索 SDGs 與 ESG 的永續知識吧！🐾</p>
+
+        <div class="games-grid">
+            <!-- 遊戲卡片 1：知識大挑戰 -->
+            <div class="game-lobby-card">
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='image/quiz.png') }}" alt="知識大挑戰">
+                    <span class="status-badge">即刻遊玩 🌍</span>
+                </div>
+                <div class="card-info">
+                    <div>
+                        <h3 class="game-lobby-name">知識大挑戰 💡</h3>
+                        <p class="game-lobby-desc">最全面的 SDGs 知識檢索測驗！每次將從精心準備的 50 題豐富題庫中隨機抽取 20 題，來測試你的跨領域永續素養吧！</p>
+                        <div class="goals-badges-container">
+                            <span class="goal-badge">SDGs 1-17 全覆蓋</span>
+                            <span class="goal-badge">ESG 永續倡議</span>
+                            <span class="goal-badge">獨立排行榜</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('quiz') }}" class="play-btn">立即開始遊戲 🚀</a>
+                </div>
+            </div>
+
+            <!-- 遊戲卡片 2：Clicking Earth -->
+            <div class="game-lobby-card">
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='images/clicking_earth/earth3.png') }}" alt="Clicking Earth">
+                    <span class="status-badge">即刻遊玩 🌲</span>
+                </div>
+                <div class="card-info">
+                    <div>
+                        <h3 class="game-lobby-name">Clicking Earth 🌍</h3>
+                        <p class="game-lobby-desc">這是一款透過快速點擊和購置綠色能源（如風力、地熱與太陽能）來為地球累積環保分數、淨化生態環境的休閒永續放置型遊戲！</p>
+                        <div class="goals-badges-container">
+                            <span class="goal-badge">SDG 7 潔淨能源</span>
+                            <span class="goal-badge">SDG 13 氣候行動</span>
+                            <span class="goal-badge">放置升級系統</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('clicking_earth') }}" class="play-btn">立即開始遊戲 🚀</a>
+                </div>
+            </div>
+
+            <!-- 遊戲卡片 3：敬請期待 (施工中) -->
+            <div class="game-lobby-card">
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='image/浣熊施工中.png') }}" alt="施工中">
+                    <span class="status-badge wip">敬請期待 🐾</span>
+                </div>
+                <div class="card-info">
+                    <div>
+                        <h3 class="game-lobby-name">敬請期待 🛠️</h3>
+                        <p class="game-lobby-desc">小灰與開發團隊正在後台拼命籌備與編寫全新的神秘小遊戲！這將是一款將更多 SDGs 永續議題與趣味互動深度結合的精彩遊戲，敬請期待！</p>
+                        <div class="goals-badges-container">
+                            <span class="goal-badge">神秘新遊戲</span>
+                            <span class="goal-badge">小灰施工中</span>
+                        </div>
+                    </div>
+                    <button class="play-btn disabled" disabled>施工中... 🦝🐾</button>
+                </div>
+            </div>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="back-home-btn">
+            <span>🏠 回到首頁</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

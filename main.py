@@ -77,6 +77,21 @@ def index():
 def to_do():
     return render_template("to_do.html", title="還沒做好的網頁")
 
+@app.route('/games')
+@app.route('/games.html')
+def games_lobby():
+    try:
+        all_games = models.MiniGame.query.all()
+    except Exception as e:
+        print("讀取小遊戲列表失敗:", e)
+        all_games = []
+    return render_template("games_lobby.html", title="小遊戲大廳 🦝🐾", games=all_games)
+
+@app.route('/links')
+@app.route('/links.html')
+def links_page():
+    return render_template("links.html", title="相關連結 🦝🐾")
+
 # ==========================================
 # 使用者登入系統路由
 # ==========================================

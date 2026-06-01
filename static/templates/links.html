@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/網2.0.css') }}">
+<style>
+    /* 相關連結大廳專屬的高端排版 */
+    .links-lobby-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .links-lobby-title {
+        font-size: 45px;
+        color: rgb(0, 4, 127);
+        font-weight: 900;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .links-lobby-subtitle {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 50px;
+        letter-spacing: 1px;
+    }
+
+    /* 連結卡片網格 */
+    .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 35px;
+        padding: 10px;
+    }
+
+    /* 連結卡片 Premium 樣式 */
+    .link-lobby-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 4, 127, 0.06),
+                    0 1px 3px rgba(0, 0, 0, 0.02);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                    box-shadow 0.4s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .link-lobby-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 45px rgba(0, 4, 127, 0.15);
+    }
+
+    /* 卡片頂部漸層標頭 */
+    .link-card-header {
+        background: linear-gradient(135deg, rgb(0, 4, 127) 0%, rgb(49, 163, 192) 100%);
+        height: 120px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 50px;
+    }
+
+    .link-card-header.un {
+        background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    }
+
+    .link-card-header.gov {
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    }
+
+    .link-card-header.taise {
+        background: linear-gradient(135deg, #e67e22 0%, #f1c40f 100%);
+    }
+
+    /* 卡片內容 */
+    .link-card-info {
+        padding: 30px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    .link-lobby-name {
+        font-size: 22px;
+        color: rgb(0, 4, 127);
+        font-weight: 800;
+        margin: 0 0 12px 0;
+    }
+
+    .link-lobby-desc {
+        font-size: 15px;
+        color: #555;
+        line-height: 1.6;
+        margin: 0 0 20px 0;
+        min-height: 96px; /* 統一高度 */
+    }
+
+    /* 連結分類標籤 */
+    .link-badges-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 25px;
+    }
+
+    .link-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(0, 4, 127, 0.08);
+        color: rgb(0, 4, 127);
+    }
+
+    /* 訪問按鈕 */
+    .visit-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, rgb(0, 4, 127) 0%, rgb(49, 163, 192) 100%);
+        color: white;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: bold;
+        font-size: 16px;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(0, 4, 127, 0.2);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    .visit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 4, 127, 0.35);
+        color: white !important;
+    }
+
+    /* 回首頁按鈕 */
+    .back-home-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 50px;
+        padding: 12px 24px;
+        background: #ffffff;
+        color: rgb(0, 4, 127);
+        border: 2px solid rgb(0, 4, 127);
+        border-radius: 30px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .back-home-btn:hover {
+        background: rgb(0, 4, 127);
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 4, 127, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: rgb(199, 205, 226); min-height: 100vh; padding-top: 120px; box-sizing: border-box;">
+    <div class="links-lobby-container">
+        <h1 class="links-lobby-title">🌍 SDGs 相關連結大廳 🦝</h1>
+        <p class="lobby-subtitle">深入了解全球永續目標！小灰為您精心整理的永續發展與 ESG 相關權威資源站點！🐾</p>
+
+        <div class="links-grid">
+            <!-- 連結 1：聯合國 SDGs 官網 -->
+            <div class="link-lobby-card">
+                <div class="link-card-header un">
+                    🇺🇳
+                </div>
+                <div class="link-card-info">
+                    <div>
+                        <h3 class="link-lobby-name">聯合國 SDGs 官方網站</h3>
+                        <p class="link-lobby-desc">全球最權威的永續發展目標 (SDGs) 首頁。包含完整的 17 個目標介紹、最新全球統計報告、國際行動倡議以及最新 SDGs 動態。</p>
+                        <div class="link-badges-container">
+                            <span class="link-badge">聯合國官方</span>
+                            <span class="link-badge">全球永續指標</span>
+                            <span class="link-badge">國際英文文獻</span>
+                        </div>
+                    </div>
+                    <a href="https://sdgs.un.org/" target="_blank" class="visit-btn">開啟官方網站 🚀</a>
+                </div>
+            </div>
+
+            <!-- 連結 2：行政院國家永續發展委員會 -->
+            <div class="link-lobby-card">
+                <div class="link-card-header gov">
+                    🇹🇼
+                </div>
+                <div class="link-card-info">
+                    <div>
+                        <h3 class="link-lobby-name">行政院國家永續發展委員會</h3>
+                        <p class="link-lobby-desc">台灣永續發展推動的最高權威機構。整理了台灣永續發展目標的政策白皮書、指標執行成果、永續獎項榮譽以及在地化的行動綱領。</p>
+                        <div class="link-badges-container">
+                            <span class="link-badge">台灣政府門戶</span>
+                            <span class="link-badge">在地化目標</span>
+                            <span class="link-badge">政策白皮書</span>
+                        </div>
+                    </div>
+                    <a href="https://nsdn.moea.gov.tw/" target="_blank" class="visit-btn">開啟官方網站 🚀</a>
+                </div>
+            </div>
+
+            <!-- 連結 3：台灣永續能源研究基金會 -->
+            <div class="link-lobby-card">
+                <div class="link-card-header taise">
+                    🌱
+                </div>
+                <div class="link-card-info">
+                    <div>
+                        <h3 class="link-lobby-name">台灣永續能源研究基金會</h3>
+                        <p class="link-lobby-desc">積極推動台灣 ESG 與永續能源教育的民間權威機構 (TAISE)。主辦眾多永續獎項、高階論壇，推展全民永續理念的卓越平台。</p>
+                        <div class="link-badges-container">
+                            <span class="link-badge">ESG 倡議領航</span>
+                            <span class="link-badge">企業永續獎</span>
+                            <span class="link-badge">永續教育推廣</span>
+                        </div>
+                    </div>
+                    <a href="https://taise.org.tw/" target="_blank" class="visit-btn">開啟官方網站 🚀</a>
+                </div>
+            </div>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="back-home-btn">
+            <span>🏠 回到首頁</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
