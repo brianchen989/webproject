@@ -39,6 +39,44 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 # 綁定資料庫服務
 models.db.init_app(app)
 
+# ==========================================
+# 系統初始化：自動建立資料表與填充預設資料 🐾
+# ==========================================
+with app.app_context():
+    try:
+        # 自動在雲端 (Supabase) 或本地建立所有缺少的資料表
+        models.db.create_all()
+        print("資料表初始化/檢查成功！")
+        
+        # 檢查小遊戲表是否為空，若空則自動填充初始預設資料
+        if models.MiniGame.query.count() == 0:
+            print("小遊戲表為空，正在注入預設小遊戲資料...")
+            
+            game_quiz = models.MiniGame(
+                game_name="知識大挑戰",
+                file_path="quiz.html",
+                description="涵蓋全部 ESG 與 SDGs 知識的綜合大挑戰測驗！快來挑戰你的永續知識吧！💡",
+                goal_1=True, goal_2=True, goal_3=True, goal_4=True, goal_5=True,
+                goal_6=True, goal_7=True, goal_8=True, goal_9=True, goal_10=True,
+                goal_11=True, goal_12=True, goal_13=True, goal_14=True, goal_15=True,
+                goal_16=True, goal_17=True
+            )
+            
+            game_earth = models.MiniGame(
+                game_name="Clicking Earth",
+                file_path="clicking_earth.html",
+                description="透過點擊地球與升級綠能科技，一步步改善地球環境的永續發展放置遊戲！🌲",
+                goal_7=True, goal_11=True, goal_12=True, goal_13=True, goal_14=True, goal_15=True
+            )
+            
+            models.db.session.add(game_quiz)
+            models.db.session.add(game_earth)
+            models.db.session.commit()
+            print("預設小遊戲資料注入完成！")
+            
+    except Exception as e:
+        print("Warning: 資料庫自動初始化/填充失敗:", e)
+
 # 設定 Flask Session 的 Secret Key (用於安全加密 cookie)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "racoon-development-secret-key-87324982")
 
