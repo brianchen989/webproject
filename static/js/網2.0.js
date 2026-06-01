@@ -159,13 +159,68 @@ document.addEventListener("DOMContentLoaded", function () {
         { text: "網際網路其實也是有碳排放的！每當我們發送一封電子郵件、觀看線上影片或搜尋一次 Google，伺服器都在消耗電力。全球數據中心產生的碳排放量，已經跟全球航空業的碳排放量不相上下。", author: "點擊滑鼠也在產生碳足跡 🐾" },
         { text: "如果把地球的 46 億年歷史壓縮成『一天 24 小時』，那麼人類在最後的『1 分 15 秒』才出現，而我們工業革命以來的現代文明，只佔了最後的『0.002 秒』。但就在這短暫的瞬間，我們卻對地球造成了巨大的改變。", author: "壓縮成一天的地球歷史 🐾" }
     ];
-    // 隨機選一則語錄
-    const random = quotes[Math.floor(Math.random() * quotes.length)];
+    // 隨機選一則語錄並啟動打字機與退格循環動畫
     const quoteEl = document.getElementById("quoteBlock");
     if (quoteEl) {
-        quoteEl.innerHTML =
-            `<h3>💡 ${random.author}</h3>
-             <p class="quote-content">${random.text}</p>`;
+        let currentQuoteIndex = Math.floor(Math.random() * quotes.length);
+        
+        function startTypingEffect() {
+            const currentQuote = quotes[currentQuoteIndex];
+            
+            // 先渲染標題，內容清空以利打字效果
+            quoteEl.innerHTML = `
+                <h3>💡 ${currentQuote.author}</h3>
+                <p class="quote-content" id="quoteTextContent"></p>
+            `;
+            
+            const textContentEl = document.getElementById("quoteTextContent");
+            const fullText = currentQuote.text;
+            let charIndex = 0;
+            
+            // 打字函數
+            function typeChar() {
+                // 確保 DOM 元素仍然存在
+                const currentEl = document.getElementById("quoteTextContent");
+                if (!currentEl) return;
+                
+                if (charIndex < fullText.length) {
+                    currentEl.textContent += fullText.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeChar, 75); // 打字速度，每個字 75 毫秒
+                } else {
+                    // 打字完畢，停頓 3.5 秒供使用者閱讀
+                    setTimeout(deleteChar, 3500);
+                }
+            }
+            
+            // 刪除退格函數
+            function deleteChar() {
+                const currentEl = document.getElementById("quoteTextContent");
+                if (!currentEl) return;
+                
+                if (currentEl.textContent.length > 0) {
+                    currentEl.textContent = currentEl.textContent.slice(0, -1);
+                    setTimeout(deleteChar, 30); // 刪除速度稍快，每個字 30 毫秒
+                } else {
+                    // 刪除完畢，隨機選下一個（若有多則，不與當前重複）
+                    let nextIndex = Math.floor(Math.random() * quotes.length);
+                    if (quotes.length > 1) {
+                        while (nextIndex === currentQuoteIndex) {
+                            nextIndex = Math.floor(Math.random() * quotes.length);
+                        }
+                    }
+                    currentQuoteIndex = nextIndex;
+                    // 停頓 0.6 秒後切換到下一個隨機冷知識並再次打字
+                    setTimeout(startTypingEffect, 600);
+                }
+            }
+            
+            // 啟動打字
+            typeChar();
+        }
+        
+        // 初始啟動
+        startTypingEffect();
     }
 
 

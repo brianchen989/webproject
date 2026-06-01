@@ -63,7 +63,7 @@ def inject_user():
     if user_id:
         try:
             user = models.db.session.get(models.User, user_id)
-            if user:
+            if user and user.deleted_at is None:
                 return dict(current_user=user)
         except Exception as e:
             print("讀取當前登入使用者失敗:", e)
@@ -81,16 +81,16 @@ def to_do():
 @app.route('/games.html')
 def games_lobby():
     try:
-        all_games = models.MiniGame.query.all()
+        all_games = models.MiniGame.query.filter(models.MiniGame.deleted_at == None).all()
     except Exception as e:
         print("讀取小遊戲列表失敗:", e)
         all_games = []
-    return render_template("games_lobby.html", title="小遊戲大廳 🦝🐾", games=all_games)
+    return render_template("games_lobby.html", title="小遊戲大廳 ", games=all_games)
 
 @app.route('/links')
 @app.route('/links.html')
 def links_page():
-    return render_template("links.html", title="相關連結 🦝🐾")
+    return render_template("links.html", title="相關連結 ")
 
 # ==========================================
 # 使用者登入系統路由
@@ -178,9 +178,10 @@ def login():
             return render_template("login.html", title="登入系統", next_url=next_url)
             
         try:
-            # 查詢使用者 (支援 username 或 email 登入)
+            # 查詢使用者 (支援 username 或 email 登入，且排除已軟刪除用戶)
             user = models.User.query.filter(
-                (models.User.email == account.lower()) | (models.User.username == account)
+                ((models.User.email == account.lower()) | (models.User.username == account)) &
+                (models.User.deleted_at == None)
             ).first()
             
             if user and user.credential:

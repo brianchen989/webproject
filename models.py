@@ -31,6 +31,7 @@ class User(db.Model):
     email      = db.Column(db.String(120), unique=True, nullable=False)   # 登入用電子信箱
     created_at = db.Column(db.DateTime, default=datetime.utcnow)          # 帳號建立時間
     last_login = db.Column(db.DateTime, nullable=True)                    # 最後登入時間
+    deleted_at = db.Column(db.DateTime, nullable=True)                    # 軟刪除欄位 (None表示未刪除)
 
     # 關聯到密碼憑證表（一對一）
     credential = db.relationship("UserCredential", back_populates="user",
@@ -39,6 +40,15 @@ class User(db.Model):
     def __init__(self, **kwargs):
         """顯式建構子，用於消除 IDE / Pylance 的型別檢查警告並提供自動補全"""
         super().__init__(**kwargs)
+
+    def soft_delete(self):
+        """軟刪除使用者，記錄刪除時間"""
+        self.deleted_at = datetime.utcnow()
+
+    @property
+    def is_deleted(self) -> bool:
+        """判斷是否已被軟刪除"""
+        return self.deleted_at is not None
 
     def to_dict(self):
         return {
@@ -145,6 +155,7 @@ class QuizScore(db.Model):
     name    = db.Column(db.String(50), nullable=False)
     score   = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    deleted_at = db.Column(db.DateTime, nullable=True)                    # 軟刪除欄位 (None表示未刪除)
 
     # 關聯至 User
     user = db.relationship("User")
@@ -172,6 +183,7 @@ class ClickingEarthScore(db.Model):
     name    = db.Column(db.String(50), nullable=False)
     score   = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    deleted_at = db.Column(db.DateTime, nullable=True)                    # 軟刪除欄位 (None表示未刪除)
 
     # 關聯至 User
     user = db.relationship("User")
@@ -194,6 +206,7 @@ class MiniGame(db.Model):
     game_name = db.Column(db.String(100), nullable=False) # 遊戲名稱 (例如：quiz)
     file_path = db.Column(db.String(255), nullable=True)  # 網頁檔案路徑 (例如：quiz.html)
     description = db.Column(db.Text, nullable=True)       # 遊戲簡介
+    deleted_at = db.Column(db.DateTime, nullable=True)                    # 軟刪除欄位 (None表示未刪除)
     
     # 17 個屬性對應 17 個 SDGs 目標 (True 代表該遊戲有涵蓋該目標)
     goal_1 = db.Column(db.Boolean, default=False)
