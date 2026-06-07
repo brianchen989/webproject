@@ -4,7 +4,7 @@ venv/
 env/
 
 # Python 暫存與快取 (Python Cache)
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
